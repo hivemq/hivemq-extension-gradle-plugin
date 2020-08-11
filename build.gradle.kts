@@ -22,7 +22,7 @@ metadata {
         developer {
             id = "ltb"
             name = "Lukas Brand"
-            email = "lukasbrand@hivemq.com"
+            email = "lukas.brand@hivemq.com"
         }
         developer {
             id = "SgtSilvio"
