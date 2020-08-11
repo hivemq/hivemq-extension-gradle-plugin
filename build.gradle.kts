@@ -6,7 +6,7 @@ plugins {
     id("com.github.sgtsilvio.gradle.metadata")
 }
 
-group = "com.hivemq.gradle" // TODO
+group = "com.hivemq"
 description = "A gradle plugin to ease the development of HiveMQ extensions"
 
 metadata {
@@ -58,7 +58,7 @@ dependencies {
 gradlePlugin {
     plugins {
         create("hivemq-extension-plugin") {
-            id = "${group}.${name}" // TODO
+            id = "${group}.${name}"
             displayName = metadata.readableName
             description = project.description
             implementationClass = "${group}.HiveMqExtensionPlugin"
@@ -69,5 +69,5 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/hivemq/hivemq-extension-gradle-plugin"
     vcsUrl = "https://github.com/hivemq/hivemq-extension-gradle-plugin.git"
-    tags = listOf("hivemq", "extension", "extension-sdk")
+    tags = listOf("hivemq", "extension")
 }
