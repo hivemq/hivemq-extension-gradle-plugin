@@ -17,24 +17,48 @@ import java.nio.file.StandardCopyOption
 class HiveMqExtensionPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions
-            .create(
-                HiveMqExtensionExtension::class.java,
-                "hivemq-extension",
-                HiveMqExtensionExtensionImpl::class.java
-            )
+
+        val extension = project.extensions.create(
+            HiveMqExtensionExtension::class.java,
+            "hivemqExtension",
+            HiveMqExtensionExtensionImpl::class.java
+        )
 
         configureJava(project)
         addDependencies(project, extension)
 
-        val collectResources = project.tasks.register("createExtensionXml", ResourcesTask::class.java)
-        collectResources.get().group = "hivemq extension"
+        project.afterEvaluate {
 
-        val shadow = applyShadowJarPlugin(project)
+            val collectResources = project.tasks.register("collectExtensionResources", ResourcesTask::class.java)
 
-        val extensionJar = applyExtensionJarPlugin(project, shadow)
+            extension.customResourcesTask?.let { resourcesTaskString ->
+                collectResources.get().dependsOn(resourcesTaskString)
+                if (project.tasks.findByName(resourcesTaskString) == null) {
+                    throw GradleException("The custom resource task \"${resourcesTaskString}\" does not exist.")
+                }
+                val resourceList = project.tasks.findByName(resourcesTaskString)!!.outputs.files.files.toList()
+                collectResources.get().inputs.files(resourceList)
+            }
+            collectResources.get().group = "hivemq extension"
+            val shadow = applyShadowJarPlugin(project)
 
-        applyDistributionPlugin(project, collectResources, extensionJar)
+
+            var outputTask: TaskProvider<Task> = project.tasks.named("shadowJar")
+
+            if (extension.customJarTask != null) {
+                val customJarTaskName = extension.customJarTask!!
+                if (project.tasks.findByName(customJarTaskName) == null) {
+                    throw GradleException("The custom jar task \"${customJarTaskName}\" does not exist.")
+                }
+                outputTask = project.tasks.named(customJarTaskName) {
+                    it.dependsOn(shadow)
+                    it.inputs.file(shadow.get().outputs.files.singleFile)
+                }
+            }
+            val extensionJar = applyExtensionJarPlugin(project, outputTask)
+
+            applyDistributionPlugin(project, collectResources, extensionJar)
+        }
     }
 
     private fun configureJava(project: Project) {
@@ -80,26 +104,19 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    private fun applyExtensionJarPlugin(project: Project, shadow: TaskProvider<ShadowJar>): TaskProvider<Task> {
+    private fun applyExtensionJarPlugin(project: Project, precedingTask: TaskProvider<Task>): TaskProvider<Task> {
         val extensionBuildFolder = project.buildDir.absolutePath + File.separator + "hivemq-extension"
 
         return project.tasks.register("hivemqExtensionJar") {
             it.group = "hivemq extension"
+            it.dependsOn(precedingTask)
             it.outputs.file(File(extensionBuildFolder, "${project.name}-${project.version}.jar"))
+            it.inputs.file(precedingTask.get().outputs.files.singleFile)
 
-            if (project.plugins.hasPlugin("enterprise-extension-plugin")) {
-                it.dependsOn("signEnterpriseExtension")
-
-                val path: Path = project.tasks.named("signEnterpriseExtension").get().outputs.files.singleFile.toPath()
-                it.inputs.file(path)
-            } else {
-                it.dependsOn(shadow)
-                it.inputs.file(shadow.get().outputs.files.singleFile.toPath())
-            }
 
             it.doLast { _ ->
                 Files.copy(
-                    it.inputs.files.singleFile.toPath(),
+                    it.inputs.files.files.maxBy { it.lastModified() }!!.toPath(),
                     Path.of(extensionBuildFolder, "${project.name}-${project.version}.jar"),
                     StandardCopyOption.REPLACE_EXISTING
                 )

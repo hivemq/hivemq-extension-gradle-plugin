@@ -18,56 +18,53 @@ open class ResourcesTask : DefaultTask() {
 
         createExtensionXML(hiveMqExtensionExtension)
         createAdditionalResources(hiveMqExtensionExtension)
+        getResourcesFromAddInResourcesTask()
     }
 
     private fun createExtensionXML(hiveMqExtensionExtension: HiveMqExtensionExtension) {
         val artifactId = project.name
         val version = project.version
         val extensionName = hiveMqExtensionExtension.extensionName
-            ?: throw GradleException("hivemq-extension: extensionName attribute is missing.")
+            ?: throw GradleException("hivemqExtension: extensionName attribute is missing.")
         val extensionAuthor = hiveMqExtensionExtension.extensionAuthor
-            ?: throw GradleException("hivemq-extension: extensionAuthor attribute is missing.")
+            ?: throw GradleException("hivemqExtension: extensionAuthor attribute is missing.")
+        val extensionPriority = hiveMqExtensionExtension.extensionPriority
+            ?: 1_000
 
         val file = File(extensionBuildFolder, "hivemq-extension.xml")
         file.parentFile.mkdirs()
         file.writeText(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                    "<!--\n" +
-                    " ~ Copyright 2018 dc-square GmbH\n" +
-                    " ~\n" +
-                    " ~  Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-                    " ~  you may not use this file except in compliance with the License.\n" +
-                    " ~  You may obtain a copy of the License at\n" +
-                    " ~\n" +
-                    " ~        http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    " ~\n" +
-                    " ~  Unless required by applicable law or agreed to in writing, software\n" +
-                    " ~  distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    " ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    " ~  See the License for the specific language governing permissions and\n" +
-                    " ~  limitations under the License.\n" +
-                    " -->\n" +
-                    "\n" +
-                    "<hivemq-extension>\n" +
-                    "    <id>${artifactId}</id>\n" +
-                    "    <version>${version}</version>\n" +
-                    "    <name>${extensionName}</name>\n" +
-                    "    <author>${extensionAuthor}</author>\n" +
-                    "    <priority>1000</priority>\n" +
-                    "</hivemq-extension>\n"
+            """
+                <hivemq-extension>
+                    <id>${artifactId}</id>
+                    <version>${version}</version>
+                    <name>${extensionName}</name>
+                    <author>${extensionAuthor}</author>
+                    <priority>${extensionPriority}</priority>
+                </hivemq-extension>
+            """.trimIndent()
         )
     }
 
     private fun createAdditionalResources(hiveMqExtensionExtension: HiveMqExtensionExtension) {
-        hiveMqExtensionExtension.additionalFiles?.let {
-            it.forEach { (fromFile, toFile) ->
+        hiveMqExtensionExtension.additionalFiles?.run {
+            forEach { (fromFile, toFile) ->
                 Path.of(extensionBuildFolder, toFile).parent.toFile().mkdirs()
+                val toFilePath = Path.of(extensionBuildFolder, toFile)
                 Files.copy(
                     Path.of(fromFile),
-                    Path.of(extensionBuildFolder, toFile),
+                    toFilePath,
                     StandardCopyOption.REPLACE_EXISTING
                 )
             }
+        }
+    }
+
+    private fun getResourcesFromAddInResourcesTask() {
+        inputs.files.files.forEach { file ->
+            val filePath = Path.of(extensionBuildFolder, file.name)
+            filePath.parent.toFile().mkdirs()
+            Files.copy(file.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 }

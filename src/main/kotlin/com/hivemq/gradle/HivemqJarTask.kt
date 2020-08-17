@@ -1,12 +1,8 @@
 package com.hivemq.gradle
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.nio.file.CopyOption
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
