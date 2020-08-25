@@ -137,8 +137,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.group = "hivemq extension"
 
             val extensionBuildFolder = project.buildDir.absolutePath + File.separator + "hivemq-extension"
-            it.from(extensionBuildFolder)
-
+            it.from(extensionBuildFolder).into(project.name)
             it.destinationDirectory.set(File(project.buildDir.absolutePath + File.separator + "distribution"))
             it.archiveFileName.set(project.name + "." + Zip.ZIP_EXTENSION)
         }
