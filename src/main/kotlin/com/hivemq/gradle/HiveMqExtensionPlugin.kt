@@ -3,7 +3,6 @@ package com.hivemq.gradle
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
-import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -40,28 +39,29 @@ class HiveMqExtensionPlugin : Plugin<Project> {
                 collectResources.get().inputs.files(resourceList)
             }
             collectResources.get().group = "hivemq extension"
-            val shadow = applyShadowJarPlugin(project)
 
-
-            var outputTask: TaskProvider<Task> = project.tasks.named("shadowJar")
+            val shadowTask = applyShadowJarPlugin(project)
+            val resourcesTask = project.tasks.named("collectExtensionResources")
 
             if (extension.customJarTask != null) {
                 val customJarTaskName = extension.customJarTask!!
                 if (project.tasks.findByName(customJarTaskName) == null) {
                     throw GradleException("The custom jar task \"${customJarTaskName}\" does not exist.")
                 }
-                outputTask = project.tasks.named(customJarTaskName) {
-                    it.dependsOn(shadow)
-                    it.inputs.file(shadow.get().outputs.files.singleFile)
+                val customJarTask = project.tasks.named(customJarTaskName) {
+                    it.dependsOn(shadowTask)
+                    it.inputs.file(shadowTask.get().outputs.files.singleFile)
                 }
-            }
-            val extensionJar = applyExtensionJarPlugin(project, outputTask)
 
-            applyDistributionPlugin(project, collectResources, extensionJar)
+                val zipTaskName = "extension" + customJarTaskName.capitalize() + "Zip"
+                createZipTask(project, zipTaskName, resourcesTask, customJarTask)
+            }
+
+            createZipTask(project, "extensionZip", resourcesTask, shadowTask)
         }
     }
 
-    private fun configureJava(project: Project) {
+    fun configureJava(project: Project) {
         if (!project.plugins.hasPlugin("java")) {
             project.plugins.apply(JavaPlugin::class.java)
         }
@@ -72,7 +72,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         })
     }
 
-    private fun addDependencies(project: Project, extension: HiveMqExtensionExtension) {
+    fun addDependencies(project: Project, extension: HiveMqExtensionExtension) {
         project.afterEvaluate {
             project.repositories.mavenCentral()
             project.configurations.getByName("compileOnly").dependencies
@@ -92,54 +92,44 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    private fun applyShadowJarPlugin(project: Project): TaskProvider<ShadowJar> {
+    fun applyShadowJarPlugin(project: Project): TaskProvider<Task> {
         project.plugins.apply(ShadowPlugin::class.java)
 
-        return project.tasks.named("shadowJar", ShadowJar::class.java) {
-            it.group = "hivemq extension"
+        project.tasks.named("shadowJar", ShadowJar::class.java) { shadowJarTask ->
+            shadowJarTask.group = "hivemq extension"
 
-            it.archiveAppendix.set("")
-            it.archiveClassifier.set("shaded")
-            it.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
+            shadowJarTask.archiveAppendix.set("")
+            shadowJarTask.archiveClassifier.set("shaded")
+            shadowJarTask.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
         }
+        return project.tasks.named("shadowJar")
     }
 
-    private fun applyExtensionJarPlugin(project: Project, precedingTask: TaskProvider<Task>): TaskProvider<Task> {
+    fun createZipTask(
+        project: Project,
+        taskName: String,
+        extensionResourcesTask: TaskProvider<Task>,
+        extensionJarTask: TaskProvider<Task>
+    ): TaskProvider<Zip> {
         val extensionBuildFolder = project.buildDir.absolutePath + File.separator + "hivemq-extension"
 
-        return project.tasks.register("hivemqExtensionJar") {
-            it.group = "hivemq extension"
-            it.dependsOn(precedingTask)
-            it.outputs.file(File(extensionBuildFolder, "${project.name}-${project.version}.jar"))
-            it.inputs.file(precedingTask.get().outputs.files.singleFile)
+        return project.tasks.register(taskName, Zip::class.java) { zipTask ->
+            zipTask.group = "hivemq extension"
+            zipTask.dependsOn(extensionResourcesTask)
+            zipTask.dependsOn(extensionJarTask)
 
-
-            it.doLast { _ ->
+            zipTask.doFirst {
                 Files.copy(
-                    it.inputs.files.files.maxBy { it.lastModified() }!!.toPath(),
+                    extensionJarTask.get().outputs.files.singleFile.toPath(),
                     Path.of(extensionBuildFolder, "${project.name}-${project.version}.jar"),
                     StandardCopyOption.REPLACE_EXISTING
                 )
             }
-        }
-    }
-
-    private fun applyDistributionPlugin(
-        project: Project,
-        extensionResources: TaskProvider<ResourcesTask>,
-        extensionJar: TaskProvider<Task>
-    ) {
-        project.plugins.apply(DistributionPlugin::class.java)
-
-        project.tasks.register("zipExtension", Zip::class.java) {
-            it.dependsOn(extensionResources)
-            it.dependsOn(extensionJar)
-            it.group = "hivemq extension"
-
-            val extensionBuildFolder = project.buildDir.absolutePath + File.separator + "hivemq-extension"
-            it.from(extensionBuildFolder).into(project.name)
-            it.destinationDirectory.set(File(project.buildDir.absolutePath + File.separator + "distribution"))
-            it.archiveFileName.set(project.name + "." + Zip.ZIP_EXTENSION)
+            zipTask.from(extensionBuildFolder).into(project.name)
+            zipTask.destinationDirectory.set(
+                Path.of(project.buildDir.absolutePath, "distribution", taskName).toFile()
+            )
+            zipTask.archiveFileName.set(project.name + "." + Zip.ZIP_EXTENSION)
         }
     }
 }
