@@ -5,9 +5,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.jvm.tasks.Jar
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -53,7 +55,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
                     it.inputs.file(shadowTask.get().outputs.files.singleFile)
                 }
 
-                val zipTaskName = "extension" + customJarTaskName.capitalize() + "Zip"
+                val zipTaskName = "extension" + customJarTaskName.removeSuffix("Jar").capitalize() + "Zip"
                 createZipTask(project, zipTaskName, resourcesTask, customJarTask)
             }
 
@@ -94,15 +96,41 @@ class HiveMqExtensionPlugin : Plugin<Project> {
 
     fun applyShadowJarPlugin(project: Project): TaskProvider<Task> {
         project.plugins.apply(ShadowPlugin::class.java)
+        val convention = project.convention.getPlugin(JavaPluginConvention::class.java)
 
-        project.tasks.named("shadowJar", ShadowJar::class.java) { shadowJarTask ->
-            shadowJarTask.group = "hivemq extension"
+        project.tasks.create("extensionJar", ShadowJar::class.java) { extensionJarTask ->
+            extensionJarTask.group = "hivemq extension"
 
-            shadowJarTask.archiveAppendix.set("")
-            shadowJarTask.archiveClassifier.set("shaded")
-            shadowJarTask.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
+            extensionJarTask.archiveAppendix.set("")
+            extensionJarTask.archiveClassifier.set("shaded")
+
+            extensionJarTask.manifest.inheritFrom((project.tasks.named("jar").get() as Jar).manifest)
+            extensionJarTask.doFirst {
+                val files = project.configurations.getByName("shadow").files
+                if (files.isNotEmpty()) {
+                    val libs =
+                        mutableListOf((project.tasks.named("jar").get() as Jar).manifest.attributes["Class-Path"])
+                    libs.addAll(files.map { it.name })
+                    extensionJarTask.manifest.attributes(mapOf("Class-Path" to libs.joinToString(" ")))
+                }
+            }
+            extensionJarTask.from(convention.sourceSets.named("main").get().output)
+            extensionJarTask.configurations =
+                if (project.configurations.findByName("runtimeClasspath") != null) {
+                    listOf(project.configurations.named("runtimeClasspath").get())
+                } else {
+                    listOf(project.configurations.named("runtime").get())
+                }
+            extensionJarTask.exclude(
+                "META-INF/INDEX.LIST",
+                "META-INF/*.SF",
+                "META-INF/*.DSA",
+                "META-INF/*.RSA",
+                "module-info.class"
+            )
+            project.artifacts.add("shadow", extensionJarTask)
         }
-        return project.tasks.named("shadowJar")
+        return project.tasks.named("extensionJar")
     }
 
     fun createZipTask(
