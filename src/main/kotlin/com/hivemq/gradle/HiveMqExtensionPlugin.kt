@@ -16,15 +16,16 @@ class HiveMqExtensionPlugin : Plugin<Project> {
 
     companion object {
         const val EXTENSION_NAME: String = "hivemqExtension"
-        const val GROUP_NAME: String = "hivemqExtension"
+        const val GROUP_NAME: String = "hivemq extension"
         const val BUILD_FOLDER_NAME: String = "hivemq-extension"
+        const val TASK_PREFIX: String = "hivemqExtension"
         const val JAR_SUFFIX: String = "jar"
         const val XML_SUFFIX: String = "xml"
         const val RESOURCES_SUFFIX: String = "resources"
         const val ZIP_SUFFIX: String = "zip"
         const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
 
-        fun taskName(suffix: String): String = GROUP_NAME + suffix.capitalize()
+        fun taskName(suffix: String): String = TASK_PREFIX + suffix.capitalize()
     }
 
     override fun apply(project: Project) {
@@ -137,11 +138,11 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.description = "Generates the xml descriptor of the HiveMQ extension"
 
             it.inputs.property("id", { project.name })
-            it.inputs.property("name", { extension.name })
             it.inputs.property("version", { project.version })
+            it.inputs.property("name", { extension.name })
             it.inputs.property("author", { extension.author })
-            it.inputs.property("priority", { extension.priority })
-            it.inputs.property("start-priority", { extension.startPriority })
+            it.inputs.property("priority", { extension.priority ?: 1_000 })
+            it.inputs.property("start-priority", { extension.startPriority ?: 1_000 })
 
             val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve("hivemq-extension.xml")
             it.outputs.file(xmlFile)
@@ -155,10 +156,11 @@ class HiveMqExtensionPlugin : Plugin<Project> {
                 xmlFile.parentFile.mkdirs()
                 xmlFile.writeText(
                     """
+                        <?xml version="1.0" encoding="UTF-8" ?>
                         <hivemq-extension>
                             <id>${project.name}</id>
-                            <name>${name}</name>
                             <version>${project.version}</version>
+                            <name>${name}</name>
                             <author>${author}</author>
                             <priority>${priority}</priority>
                             <start-priority>${startPriority}</start-priority>
@@ -175,7 +177,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         resourcesTask: TaskProvider<Copy>
     ): TaskProvider<Zip> {
 
-        val specialName = jarTask.name.removePrefix(GROUP_NAME).removeSuffix(JAR_SUFFIX.capitalize())
+        val specialName = jarTask.name.removePrefix(TASK_PREFIX).removeSuffix(JAR_SUFFIX.capitalize())
 
         return project.tasks.register(taskName(specialName + ZIP_SUFFIX.capitalize()), Zip::class.java) {
             it.group = GROUP_NAME
