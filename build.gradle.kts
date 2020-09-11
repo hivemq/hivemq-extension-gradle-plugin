@@ -46,6 +46,11 @@ tasks {
     }
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 repositories {
     mavenCentral()
     gradlePluginPortal()

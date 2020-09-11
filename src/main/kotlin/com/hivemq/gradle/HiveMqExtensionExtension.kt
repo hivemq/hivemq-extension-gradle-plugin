@@ -18,12 +18,12 @@ interface HiveMqExtensionExtension {
     /**
      * Priority of the HiveMQ extension, default: 1000
      */
-    var priority: Int?
+    var priority: Int
 
     /**
      * Start priority of the HiveMQ extension, default: 1000
      */
-    var startPriority: Int?
+    var startPriority: Int
 
     /**
      * Main class of the HiveMQ extension SDK, required
@@ -33,8 +33,8 @@ interface HiveMqExtensionExtension {
     /**
      * Version of the HiveMQ extension SDK, default: latest.integration
      */
-    var sdkVersion: String?
+    var sdkVersion: String
 
     //Add a task to do something in between shadowing and zipping (i.e. proguard)
-    var customJarTask: String?
+//    var customJarTask: String?
 }
