@@ -26,6 +26,11 @@ interface HiveMqExtensionExtension {
     var startPriority: Int?
 
     /**
+     * Main class of the HiveMQ extension SDK, required
+     */
+    var mainClass: String?
+
+    /**
      * Version of the HiveMQ extension SDK, default: latest.integration
      */
     var sdkVersion: String?

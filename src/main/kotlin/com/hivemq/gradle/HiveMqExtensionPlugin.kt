@@ -22,6 +22,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         const val XML_SUFFIX: String = "xml"
         const val RESOURCES_SUFFIX: String = "resources"
         const val ZIP_SUFFIX: String = "zip"
+        const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
 
         fun taskName(suffix: String): String = GROUP_NAME + suffix.capitalize()
     }
@@ -36,9 +37,8 @@ class HiveMqExtensionPlugin : Plugin<Project> {
 
         configureJava(project)
         addDependencies(project, extension)
-        val jarTask = registerJarTask(project)
-        val xmlTask = registerXmlTask(project, extension)
-        val resourcesTask = registerResourcesTask(project, xmlTask)
+        val jarTask = registerJarTask(project, extension)
+        val resourcesTask = registerResourcesTask(project, extension)
         registerZipTask(project, jarTask, resourcesTask)
 
 //        project.afterEvaluate {
@@ -79,8 +79,10 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerJarTask(project: Project): TaskProvider<ShadowJar> {
+    fun registerJarTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<ShadowJar> {
         project.plugins.apply(ShadowPlugin::class.java)
+
+        val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
 
         return project.tasks.register(taskName(JAR_SUFFIX), ShadowJar::class.java) {
             it.group = GROUP_NAME
@@ -93,6 +95,39 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.from(convention.sourceSets.getByName("main").output)
             it.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
             it.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
+            it.from(serviceDescriptorTask) { copySpec -> copySpec.into("META-INF/services") }
+        }
+    }
+
+    fun registerServiceDescriptorTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
+        return project.tasks.register(taskName(SERVICE_DESCRIPTOR_SUFFIX)) {
+            it.group = GROUP_NAME
+            it.description = "Generates the service descriptor of the HiveMQ extension"
+
+            it.inputs.property("mainClass", { extension.mainClass })
+
+            val descriptorFile =
+                project.buildDir.resolve(BUILD_FOLDER_NAME).resolve("com.hivemq.extension.sdk.api.ExtensionMain")
+            it.outputs.file(descriptorFile)
+
+            it.doFirst {
+                val mainClass = extension.mainClass ?: throw GradleException("${EXTENSION_NAME}: mainClass is missing.")
+
+                descriptorFile.parentFile.mkdirs()
+                descriptorFile.writeText(mainClass)
+            }
+        }
+    }
+
+    fun registerResourcesTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Copy> {
+        val xmlTask = registerXmlTask(project, extension)
+
+        return project.tasks.register(taskName(RESOURCES_SUFFIX), Copy::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Collects the resources of the HiveMQ extension"
+
+            it.from(xmlTask)
+            it.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
         }
     }
 
@@ -112,10 +147,8 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.outputs.file(xmlFile)
 
             it.doFirst {
-                val name =
-                    extension.name ?: throw GradleException("hivemqExtension: extensionName attribute is missing.")
-                val author =
-                    extension.author ?: throw GradleException("hivemqExtension: extensionAuthor attribute is missing.")
+                val name = extension.name ?: throw GradleException("${EXTENSION_NAME}: name is missing.")
+                val author = extension.author ?: throw GradleException("${EXTENSION_NAME}: author is missing.")
                 val priority = extension.priority ?: 1_000
                 val startPriority = extension.startPriority ?: 1_000
 
@@ -133,16 +166,6 @@ class HiveMqExtensionPlugin : Plugin<Project> {
                     """.trimIndent()
                 )
             }
-        }
-    }
-
-    fun registerResourcesTask(project: Project, xmlTask: TaskProvider<Task>): TaskProvider<Copy> {
-        return project.tasks.register(taskName(RESOURCES_SUFFIX), Copy::class.java) {
-            it.group = GROUP_NAME
-            it.description = "Collects the resources of the HiveMQ extension"
-
-            it.from(xmlTask)
-            it.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
         }
     }
 
