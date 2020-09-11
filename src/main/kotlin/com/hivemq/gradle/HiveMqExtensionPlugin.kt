@@ -3,64 +3,58 @@ package com.hivemq.gradle
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
-import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 
 class HiveMqExtensionPlugin : Plugin<Project> {
+
+    companion object {
+        const val EXTENSION_NAME: String = "hivemqExtension"
+        const val GROUP_NAME: String = "hivemqExtension"
+        const val BUILD_FOLDER_NAME: String = "hivemq-extension"
+        const val JAR_SUFFIX: String = "jar"
+        const val XML_SUFFIX: String = "xml"
+        const val RESOURCES_SUFFIX: String = "resources"
+        const val ZIP_SUFFIX: String = "zip"
+
+        fun taskName(suffix: String): String = GROUP_NAME + suffix.capitalize()
+    }
 
     override fun apply(project: Project) {
 
         val extension = project.extensions.create(
             HiveMqExtensionExtension::class.java,
-            "hivemqExtension",
+            EXTENSION_NAME,
             HiveMqExtensionExtensionImpl::class.java
         )
 
         configureJava(project)
         addDependencies(project, extension)
+        val jarTask = registerJarTask(project)
+        val xmlTask = registerXmlTask(project, extension)
+        val resourcesTask = registerResourcesTask(project, xmlTask)
+        registerZipTask(project, jarTask, resourcesTask)
 
-        project.afterEvaluate {
-
-            val collectResources = project.tasks.register("collectExtensionResources", ResourcesTask::class.java)
-
-            extension.customResourcesTask?.let { resourcesTaskString ->
-                collectResources.get().dependsOn(resourcesTaskString)
-                if (project.tasks.findByName(resourcesTaskString) == null) {
-                    throw GradleException("The custom resource task \"${resourcesTaskString}\" does not exist.")
-                }
-                val resourceList = project.tasks.findByName(resourcesTaskString)!!.outputs.files.files.toList()
-                collectResources.get().inputs.files(resourceList)
-            }
-            collectResources.get().group = "hivemq extension"
-
-            val shadowTask = applyShadowJarPlugin(project)
-            val resourcesTask = project.tasks.named("collectExtensionResources")
-
-            if (extension.customJarTask != null) {
-                val customJarTaskName = extension.customJarTask!!
-                if (project.tasks.findByName(customJarTaskName) == null) {
-                    throw GradleException("The custom jar task \"${customJarTaskName}\" does not exist.")
-                }
-                val customJarTask = project.tasks.named(customJarTaskName) {
-                    it.dependsOn(shadowTask)
-                    it.inputs.file(shadowTask.get().outputs.files.singleFile)
-                }
-
-                val zipTaskName = "extension" + customJarTaskName.removeSuffix("Jar").capitalize() + "Zip"
-                createZipTask(project, zipTaskName, resourcesTask, customJarTask)
-            }
-
-            createZipTask(project, "extensionZip", resourcesTask, shadowTask)
-        }
+//        project.afterEvaluate {
+//            val customJarTaskName = extension.customJarTask
+//            if (customJarTaskName != null) {
+//                if (project.tasks.findByName(customJarTaskName) == null) {
+//                    throw GradleException("The custom jar task \"${customJarTaskName}\" does not exist.")
+//                }
+//                val customJarTask = project.tasks.named(customJarTaskName) {
+//                    it.dependsOn(jarTask)
+//                    it.inputs.file(jarTask.get().outputs.files.singleFile)
+//                }
+//
+//                registerZipTask(project, customJarTask, resourcesTask)
+//            }
+//        }
     }
 
     fun configureJava(project: Project) {
@@ -68,96 +62,107 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             project.plugins.apply(JavaPlugin::class.java)
         }
 
-        project.extensions.configure("java", Action<JavaPluginExtension> {
+        project.extensions.configure<JavaPluginExtension>("java") {
             it.sourceCompatibility = JavaVersion.VERSION_11
             it.targetCompatibility = JavaVersion.VERSION_11
-        })
+        }
     }
 
-    fun addDependencies(project: Project, extension: HiveMqExtensionExtension) {
+    private fun addDependencies(project: Project, extension: HiveMqExtensionExtension) {
         project.afterEvaluate {
-            project.repositories.mavenCentral()
-            project.configurations.getByName("compileOnly").dependencies
-                .add(
-                    DefaultExternalModuleDependency(
-                        "com.hivemq", "hivemq-extension-sdk", extension.sdkVersion
-                            ?: "latest.integration"
-                    )
-                )
-            project.configurations.getByName("testImplementation").dependencies
-                .add(
-                    DefaultExternalModuleDependency(
-                        "com.hivemq", "hivemq-extension-sdk", extension.sdkVersion
-                            ?: "latest.integration"
-                    )
-                )
+            if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
+                project.repositories.mavenCentral()
+            }
+            val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion ?: "latest.integration"}"
+            project.dependencies.add("compileOnly", sdkDependency)
+            project.dependencies.add("testImplementation", sdkDependency)
         }
     }
 
-    fun applyShadowJarPlugin(project: Project): TaskProvider<Task> {
+    fun registerJarTask(project: Project): TaskProvider<ShadowJar> {
         project.plugins.apply(ShadowPlugin::class.java)
-        val convention = project.convention.getPlugin(JavaPluginConvention::class.java)
 
-        project.tasks.create("extensionJar", ShadowJar::class.java) { extensionJarTask ->
-            extensionJarTask.group = "hivemq extension"
+        return project.tasks.register(taskName(JAR_SUFFIX), ShadowJar::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Assembles the jar archive of the HiveMQ extension"
 
-            extensionJarTask.archiveAppendix.set("")
-            extensionJarTask.archiveClassifier.set("shaded")
+            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(JAR_SUFFIX))
 
-            extensionJarTask.manifest.inheritFrom((project.tasks.named("jar").get() as Jar).manifest)
-            extensionJarTask.doFirst {
-                val files = project.configurations.getByName("shadow").files
-                if (files.isNotEmpty()) {
-                    val libs =
-                        mutableListOf((project.tasks.named("jar").get() as Jar).manifest.attributes["Class-Path"])
-                    libs.addAll(files.map { it.name })
-                    extensionJarTask.manifest.attributes(mapOf("Class-Path" to libs.joinToString(" ")))
-                }
-            }
-            extensionJarTask.from(convention.sourceSets.named("main").get().output)
-            extensionJarTask.configurations =
-                if (project.configurations.findByName("runtimeClasspath") != null) {
-                    listOf(project.configurations.named("runtimeClasspath").get())
-                } else {
-                    listOf(project.configurations.named("runtime").get())
-                }
-            extensionJarTask.exclude(
-                "META-INF/INDEX.LIST",
-                "META-INF/*.SF",
-                "META-INF/*.DSA",
-                "META-INF/*.RSA",
-                "module-info.class"
-            )
-            project.artifacts.add("shadow", extensionJarTask)
+            it.manifest.inheritFrom((project.tasks.getByName("jar") as Jar).manifest)
+            val convention = project.convention.getPlugin(JavaPluginConvention::class.java)
+            it.from(convention.sourceSets.getByName("main").output)
+            it.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
+            it.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
         }
-        return project.tasks.named("extensionJar")
     }
 
-    fun createZipTask(
-        project: Project,
-        taskName: String,
-        extensionResourcesTask: TaskProvider<Task>,
-        extensionJarTask: TaskProvider<Task>
-    ): TaskProvider<Zip> {
-        val extensionBuildFolder = project.buildDir.absolutePath + File.separator + "hivemq-extension"
+    fun registerXmlTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
+        return project.tasks.register(taskName(XML_SUFFIX)) {
+            it.group = GROUP_NAME
+            it.description = "Generates the xml descriptor of the HiveMQ extension"
 
-        return project.tasks.register(taskName, Zip::class.java) { zipTask ->
-            zipTask.group = "hivemq extension"
-            zipTask.dependsOn(extensionResourcesTask)
-            zipTask.dependsOn(extensionJarTask)
+            it.inputs.property("id", { project.name })
+            it.inputs.property("name", { extension.name })
+            it.inputs.property("version", { project.version })
+            it.inputs.property("author", { extension.author })
+            it.inputs.property("priority", { extension.priority })
+            it.inputs.property("start-priority", { extension.startPriority })
 
-            zipTask.doFirst {
-                Files.copy(
-                    extensionJarTask.get().outputs.files.singleFile.toPath(),
-                    Path.of(extensionBuildFolder, "${project.name}-${project.version}.jar"),
-                    StandardCopyOption.REPLACE_EXISTING
+            val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve("hivemq-extension.xml")
+            it.outputs.file(xmlFile)
+
+            it.doFirst {
+                val name =
+                    extension.name ?: throw GradleException("hivemqExtension: extensionName attribute is missing.")
+                val author =
+                    extension.author ?: throw GradleException("hivemqExtension: extensionAuthor attribute is missing.")
+                val priority = extension.priority ?: 1_000
+                val startPriority = extension.startPriority ?: 1_000
+
+                xmlFile.parentFile.mkdirs()
+                xmlFile.writeText(
+                    """
+                        <hivemq-extension>
+                            <id>${project.name}</id>
+                            <name>${name}</name>
+                            <version>${project.version}</version>
+                            <author>${author}</author>
+                            <priority>${priority}</priority>
+                            <start-priority>${startPriority}</start-priority>
+                        </hivemq-extension>
+                    """.trimIndent()
                 )
             }
-            zipTask.from(extensionBuildFolder).into(project.name)
-            zipTask.destinationDirectory.set(
-                Path.of(project.buildDir.absolutePath, "distribution", taskName).toFile()
-            )
-            zipTask.archiveFileName.set(project.name + "." + Zip.ZIP_EXTENSION)
+        }
+    }
+
+    fun registerResourcesTask(project: Project, xmlTask: TaskProvider<Task>): TaskProvider<Copy> {
+        return project.tasks.register(taskName(RESOURCES_SUFFIX), Copy::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Collects the resources of the HiveMQ extension"
+
+            it.from(xmlTask)
+            it.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
+        }
+    }
+
+    fun registerZipTask(
+        project: Project,
+        jarTask: TaskProvider<out Jar>,
+        resourcesTask: TaskProvider<Copy>
+    ): TaskProvider<Zip> {
+
+        val specialName = jarTask.name.removePrefix(GROUP_NAME).removeSuffix(JAR_SUFFIX.capitalize())
+
+        return project.tasks.register(taskName(specialName + ZIP_SUFFIX.capitalize()), Zip::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Assembles the zip distribution of the HiveMQ extension"
+
+            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(ZIP_SUFFIX))
+
+            it.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
+            it.from(resourcesTask)
+            it.into(project.name)
         }
     }
 }
