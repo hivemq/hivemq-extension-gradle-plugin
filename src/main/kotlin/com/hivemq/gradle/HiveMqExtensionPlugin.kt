@@ -74,7 +74,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
                 project.repositories.mavenCentral()
             }
-            val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion ?: "latest.integration"}"
+            val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion}"
             project.dependencies.add("compileOnly", sdkDependency)
             project.dependencies.add("testImplementation", sdkDependency)
         }
@@ -100,7 +100,11 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerServiceDescriptorTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
+    private fun registerServiceDescriptorTask(
+        project: Project,
+        extension: HiveMqExtensionExtension
+    ): TaskProvider<Task> {
+
         return project.tasks.register(taskName(SERVICE_DESCRIPTOR_SUFFIX)) {
             it.group = GROUP_NAME
             it.description = "Generates the service descriptor of the HiveMQ extension"
@@ -132,7 +136,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerXmlTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
+    private fun registerXmlTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
         return project.tasks.register(taskName(XML_SUFFIX)) {
             it.group = GROUP_NAME
             it.description = "Generates the xml descriptor of the HiveMQ extension"
@@ -141,8 +145,8 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.inputs.property("version", { project.version })
             it.inputs.property("name", { extension.name })
             it.inputs.property("author", { extension.author })
-            it.inputs.property("priority", { extension.priority ?: 1_000 })
-            it.inputs.property("start-priority", { extension.startPriority ?: 1_000 })
+            it.inputs.property("priority", { extension.priority })
+            it.inputs.property("start-priority", { extension.startPriority })
 
             val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve("hivemq-extension.xml")
             it.outputs.file(xmlFile)
@@ -150,8 +154,6 @@ class HiveMqExtensionPlugin : Plugin<Project> {
             it.doFirst {
                 val name = extension.name ?: throw GradleException("${EXTENSION_NAME}: name is missing.")
                 val author = extension.author ?: throw GradleException("${EXTENSION_NAME}: author is missing.")
-                val priority = extension.priority ?: 1_000
-                val startPriority = extension.startPriority ?: 1_000
 
                 xmlFile.parentFile.mkdirs()
                 xmlFile.writeText(
@@ -162,8 +164,8 @@ class HiveMqExtensionPlugin : Plugin<Project> {
                             <version>${project.version}</version>
                             <name>${name}</name>
                             <author>${author}</author>
-                            <priority>${priority}</priority>
-                            <start-priority>${startPriority}</start-priority>
+                            <priority>${extension.priority}</priority>
+                            <start-priority>${extension.startPriority}</start-priority>
                         </hivemq-extension>
                     """.trimIndent()
                 )
