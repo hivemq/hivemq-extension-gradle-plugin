@@ -5,20 +5,31 @@ package com.hivemq.gradle
  */
 interface HiveMqExtensionExtension {
 
-    //Required extension information
-    var extensionName: String?
-    var extensionAuthor: String?
+    /**
+     * Name of the HiveMQ extension, required
+     */
+    var name: String?
 
-    //Optional extension information
-    var extensionPriority: Int?
+    /**
+     * Author of the HiveMQ extension, required
+     */
+    var author: String?
 
-    //Apply additional files via path or by a task
-    var additionalFiles: Map<String, String>?
-    var customResourcesTask: String?
+    /**
+     * Priority of the HiveMQ extension, default: 1000
+     */
+    var priority: Int?
+
+    /**
+     * Start priority of the HiveMQ extension, default: 1000
+     */
+    var startPriority: Int?
+
+    /**
+     * Version of the HiveMQ extension SDK, default: latest.integration
+     */
+    var sdkVersion: String?
 
     //Add a task to do something in between shadowing and zipping (i.e. proguard)
     var customJarTask: String?
-
-    //The dependency HiveMQ Extension Sdk version
-    var sdkVersion: String?
 }
