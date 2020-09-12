@@ -2,8 +2,9 @@ package com.hivemq.gradle
 
 /**
  * @author Lukas Brand
+ * @author Silvio Giebl
  */
-open class HiveMqExtensionExtensionImpl : HiveMqExtensionExtension {
+open class HiveMQExtensionExtensionImpl : HiveMQExtensionExtension {
     override var name: String? = null
     override var author: String? = null
     override var priority: Int = 1000

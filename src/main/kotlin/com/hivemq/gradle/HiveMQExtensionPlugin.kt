@@ -12,7 +12,11 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 
-class HiveMqExtensionPlugin : Plugin<Project> {
+/**
+ * @author Lukas Brand
+ * @author Silvio Giebl
+ */
+class HiveMQExtensionPlugin : Plugin<Project> {
 
     companion object {
         const val EXTENSION_NAME: String = "hivemqExtension"
@@ -31,9 +35,9 @@ class HiveMqExtensionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
         val extension = project.extensions.create(
-            HiveMqExtensionExtension::class.java,
+            HiveMQExtensionExtension::class.java,
             EXTENSION_NAME,
-            HiveMqExtensionExtensionImpl::class.java
+            HiveMQExtensionExtensionImpl::class.java
         )
 
         configureJava(project)
@@ -69,7 +73,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    private fun addDependencies(project: Project, extension: HiveMqExtensionExtension) {
+    private fun addDependencies(project: Project, extension: HiveMQExtensionExtension) {
         project.afterEvaluate {
             if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
                 project.repositories.mavenCentral()
@@ -80,7 +84,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerJarTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<ShadowJar> {
+    fun registerJarTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<ShadowJar> {
         project.plugins.apply(ShadowPlugin::class.java)
 
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
@@ -102,7 +106,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
 
     private fun registerServiceDescriptorTask(
         project: Project,
-        extension: HiveMqExtensionExtension
+        extension: HiveMQExtensionExtension
     ): TaskProvider<Task> {
 
         return project.tasks.register(taskName(SERVICE_DESCRIPTOR_SUFFIX)) {
@@ -124,7 +128,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerResourcesTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Copy> {
+    fun registerResourcesTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<Copy> {
         val xmlTask = registerXmlTask(project, extension)
 
         return project.tasks.register(taskName(RESOURCES_SUFFIX), Copy::class.java) {
@@ -136,7 +140,7 @@ class HiveMqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    private fun registerXmlTask(project: Project, extension: HiveMqExtensionExtension): TaskProvider<Task> {
+    private fun registerXmlTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<Task> {
         return project.tasks.register(taskName(XML_SUFFIX)) {
             it.group = GROUP_NAME
             it.description = "Generates the xml descriptor of the HiveMQ extension"
