@@ -1,12 +1,13 @@
 package com.hivemq.gradle
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
@@ -30,6 +31,12 @@ class HiveMQExtensionPlugin : Plugin<Project> {
         const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
 
         fun taskName(suffix: String): String = TASK_PREFIX + suffix.capitalize()
+
+        const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
+        const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
+        const val HIVEMQ_HOME_PROPERTY: String = "hivemq.home"
+        const val HOME_FOLDER_NAME: String = "hivemq-home"
+        const val EXTENSIONS_FOLDER_NAME: String = "extensions"
     }
 
     override fun apply(project: Project) {
@@ -44,7 +51,8 @@ class HiveMQExtensionPlugin : Plugin<Project> {
         addDependencies(project, extension)
         val jarTask = registerJarTask(project, extension)
         val resourcesTask = registerResourcesTask(project, extension)
-        registerZipTask(project, jarTask, resourcesTask)
+        val zipTask = registerZipTask(project, jarTask, resourcesTask)
+        registerRunHivemqWithExtensionTask(project, zipTask)
 
 //        project.afterEvaluate {
 //            val customJarTaskName = extension.customJarTask
@@ -85,8 +93,6 @@ class HiveMQExtensionPlugin : Plugin<Project> {
     }
 
     fun registerJarTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<ShadowJar> {
-        project.plugins.apply(ShadowPlugin::class.java)
-
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
 
         return project.tasks.register(taskName(JAR_SUFFIX), ShadowJar::class.java) {
@@ -120,7 +126,7 @@ class HiveMQExtensionPlugin : Plugin<Project> {
             it.outputs.file(descriptorFile)
 
             it.doFirst {
-                val mainClass = extension.mainClass ?: throw GradleException("${EXTENSION_NAME}: mainClass is missing.")
+                val mainClass = extension.mainClass ?: throw GradleException("$EXTENSION_NAME: mainClass is missing.")
 
                 descriptorFile.parentFile.mkdirs()
                 descriptorFile.writeText(mainClass)
@@ -156,8 +162,8 @@ class HiveMQExtensionPlugin : Plugin<Project> {
             it.outputs.file(xmlFile)
 
             it.doFirst {
-                val name = extension.name ?: throw GradleException("${EXTENSION_NAME}: name is missing.")
-                val author = extension.author ?: throw GradleException("${EXTENSION_NAME}: author is missing.")
+                val name = extension.name ?: throw GradleException("$EXTENSION_NAME: name is missing.")
+                val author = extension.author ?: throw GradleException("$EXTENSION_NAME: author is missing.")
 
                 xmlFile.parentFile.mkdirs()
                 xmlFile.writeText(
@@ -166,8 +172,8 @@ class HiveMQExtensionPlugin : Plugin<Project> {
                         <hivemq-extension>
                             <id>${project.name}</id>
                             <version>${project.version}</version>
-                            <name>${name}</name>
-                            <author>${author}</author>
+                            <name>$name</name>
+                            <author>$author</author>
                             <priority>${extension.priority}</priority>
                             <start-priority>${extension.startPriority}</start-priority>
                         </hivemq-extension>
@@ -194,6 +200,49 @@ class HiveMQExtensionPlugin : Plugin<Project> {
             it.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
             it.from(resourcesTask)
             it.into(project.name)
+        }
+    }
+
+    fun registerRunHivemqWithExtensionTask(project: Project, zipTask: TaskProvider<Zip>): TaskProvider<JavaExec> {
+        val prepareHivemqHomeTask = registerPrepareHivemqHomeTask(project, zipTask)
+
+        return project.tasks.register(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME, JavaExec::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Runs HiveMQ with the extension"
+
+            it.dependsOn(prepareHivemqHomeTask)
+            val hivemqHome = prepareHivemqHomeTask.get().outputs.files.asPath
+            it.classpath("$hivemqHome/bin/hivemq.jar")
+            it.systemProperty(HIVEMQ_HOME_PROPERTY, hivemqHome)
+            it.jvmArgs("-Djava.net.preferIPv4Stack=true", "-noverify")
+            it.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+            it.jvmArgs("--add-opens", "java.base/java.nio=ALL-UNNAMED")
+            it.jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED")
+            it.jvmArgs("--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED")
+            it.jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+        }
+    }
+
+    private fun registerPrepareHivemqHomeTask(
+        project: Project,
+        zipTask: TaskProvider<Zip>
+    ): TaskProvider<PrepareHivemqHome> {
+
+        return project.tasks.register(PREPARE_HIVEMQ_HOME_TASK_NAME, PrepareHivemqHome::class.java) {
+            it.group = GROUP_NAME
+            it.description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
+
+            it.extensionZipTask.set(zipTask)
+
+            it.dependsOn(it.extensionZipTask)
+            it.from(it.hivemqFolder) { copySpec ->
+                copySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
+            }
+            it.from(it.extensionZipTask.map { zip -> project.zipTree(zip.outputs.files.singleFile) }) { copySpec ->
+                copySpec.into(EXTENSIONS_FOLDER_NAME)
+            }
+            it.into(project.buildDir.resolve(HOME_FOLDER_NAME))
+            it.duplicatesStrategy = DuplicatesStrategy.WARN
         }
     }
 }
