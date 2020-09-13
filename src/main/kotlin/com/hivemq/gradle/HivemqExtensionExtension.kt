@@ -4,7 +4,7 @@ package com.hivemq.gradle
  * @author Lukas Brand
  * @author Silvio Giebl
  */
-interface HiveMQExtensionExtension {
+interface HivemqExtensionExtension {
 
     /**
      * Name of the HiveMQ extension, required
