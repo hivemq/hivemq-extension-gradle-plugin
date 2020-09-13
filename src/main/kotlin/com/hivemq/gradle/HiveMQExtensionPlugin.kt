@@ -7,7 +7,7 @@ import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
@@ -93,7 +93,7 @@ class HiveMQExtensionPlugin : Plugin<Project> {
             it.group = GROUP_NAME
             it.description = "Assembles the jar archive of the HiveMQ extension"
 
-            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(JAR_SUFFIX))
+            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
 
             it.manifest.inheritFrom((project.tasks.getByName("jar") as Jar).manifest)
             val convention = project.convention.getPlugin(JavaPluginConvention::class.java)
@@ -128,10 +128,10 @@ class HiveMQExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerResourcesTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<Copy> {
+    fun registerResourcesTask(project: Project, extension: HiveMQExtensionExtension): TaskProvider<Sync> {
         val xmlTask = registerXmlTask(project, extension)
 
-        return project.tasks.register(taskName(RESOURCES_SUFFIX), Copy::class.java) {
+        return project.tasks.register(taskName(RESOURCES_SUFFIX), Sync::class.java) {
             it.group = GROUP_NAME
             it.description = "Collects the resources of the HiveMQ extension"
 
@@ -179,8 +179,8 @@ class HiveMQExtensionPlugin : Plugin<Project> {
 
     fun registerZipTask(
         project: Project,
-        jarTask: TaskProvider<out Jar>,
-        resourcesTask: TaskProvider<Copy>
+        jarTask: TaskProvider<out Task>,
+        resourcesTask: TaskProvider<Sync>
     ): TaskProvider<Zip> {
 
         val specialName = jarTask.name.removePrefix(TASK_PREFIX).removeSuffix(JAR_SUFFIX.capitalize())
@@ -189,7 +189,7 @@ class HiveMQExtensionPlugin : Plugin<Project> {
             it.group = GROUP_NAME
             it.description = "Assembles the zip distribution of the HiveMQ extension"
 
-            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(ZIP_SUFFIX))
+            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
 
             it.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
             it.from(resourcesTask)
