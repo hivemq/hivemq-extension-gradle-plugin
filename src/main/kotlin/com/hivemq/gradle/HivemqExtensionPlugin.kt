@@ -54,20 +54,17 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val zipTask = registerZipTask(project, jarTask, resourcesTask)
         registerRunHivemqWithExtensionTask(project, zipTask)
 
-//        project.afterEvaluate {
-//            val customJarTaskName = extension.customJarTask
-//            if (customJarTaskName != null) {
-//                if (project.tasks.findByName(customJarTaskName) == null) {
-//                    throw GradleException("The custom jar task \"${customJarTaskName}\" does not exist.")
-//                }
-//                val customJarTask = project.tasks.named(customJarTaskName) {
-//                    it.dependsOn(jarTask)
-//                    it.inputs.file(jarTask.get().outputs.files.singleFile)
-//                }
-//
-//                registerZipTask(project, customJarTask, resourcesTask)
-//            }
-//        }
+        project.afterEvaluate {
+            val customJarTaskAny = extension.customJarTask
+            if (customJarTaskAny != null) {
+                val customJarTask = when (customJarTaskAny) {
+                    is TaskProvider<*> -> customJarTaskAny
+                    is String -> project.tasks.named(customJarTaskAny)
+                    else -> throw GradleException("The custom jar task must either be a Task or String.")
+                }
+                registerZipTask(project, customJarTask, resourcesTask)
+            }
+        }
     }
 
     fun configureJava(project: Project) {
@@ -185,7 +182,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun registerZipTask(
         project: Project,
-        jarTask: TaskProvider<out Task>,
+        jarTask: TaskProvider<*>,
         resourcesTask: TaskProvider<Sync>
     ): TaskProvider<Zip> {
 
@@ -196,6 +193,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.description = "Assembles the zip distribution of the HiveMQ extension"
 
             it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
+            it.archiveClassifier.set(specialName.toLowerCase())
 
             it.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
             it.from(resourcesTask)
