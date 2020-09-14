@@ -54,17 +54,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val zipTask = registerZipTask(project, jarTask, resourcesTask)
         registerRunHivemqWithExtensionTask(project, zipTask)
 
-        project.afterEvaluate {
-            val customJarTaskAny = extension.customJarTask
-            if (customJarTaskAny != null) {
-                val customJarTask = when (customJarTaskAny) {
-                    is TaskProvider<*> -> customJarTaskAny
-                    is String -> project.tasks.named(customJarTaskAny)
-                    else -> throw GradleException("The custom jar task must either be a Task or String.")
-                }
-                registerZipTask(project, customJarTask, resourcesTask)
-            }
-        }
+        registerCustomZipTask(project, extension, resourcesTask)
     }
 
     fun configureJava(project: Project) {
@@ -241,6 +231,24 @@ class HivemqExtensionPlugin : Plugin<Project> {
             }
             it.into(project.buildDir.resolve(HOME_FOLDER_NAME))
             it.duplicatesStrategy = DuplicatesStrategy.WARN
+        }
+    }
+
+    private fun registerCustomZipTask(
+        project: Project,
+        extension: HivemqExtensionExtension,
+        resourcesTask: TaskProvider<Sync>
+    ) {
+        project.afterEvaluate {
+            val customJarTaskAny = extension.customJarTask
+            if (customJarTaskAny != null) {
+                val customJarTask = when (customJarTaskAny) {
+                    is TaskProvider<*> -> customJarTaskAny
+                    is String -> project.tasks.named(customJarTaskAny)
+                    else -> throw GradleException("The custom jar task must either be a Task or String.")
+                }
+                registerZipTask(project, customJarTask, resourcesTask)
+            }
         }
     }
 }
