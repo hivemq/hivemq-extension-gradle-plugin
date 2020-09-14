@@ -40,14 +40,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     override fun apply(project: Project) {
-
-        val extension = project.extensions.create(
-            HivemqExtensionExtension::class.java,
-            EXTENSION_NAME,
-            HivemqExtensionExtensionImpl::class.java
-        )
-
         configureJava(project)
+        val extension = createExtension(project)
         addDependencies(project, extension)
         val jarTask = registerJarTask(project, extension)
         val resourcesTask = registerResourcesTask(project, extension)
@@ -55,6 +49,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
         registerRunHivemqWithExtensionTask(project, zipTask)
 
         registerCustomZipTask(project, extension, resourcesTask)
+    }
+
+    private fun createExtension(project: Project): HivemqExtensionExtension {
+        return project.extensions.create(
+            HivemqExtensionExtension::class.java,
+            EXTENSION_NAME,
+            HivemqExtensionExtensionImpl::class.java
+        )
     }
 
     fun configureJava(project: Project) {
