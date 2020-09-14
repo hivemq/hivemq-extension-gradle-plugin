@@ -224,11 +224,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
             it.extensionZipTask.set(zipTask)
 
-            it.dependsOn(it.extensionZipTask)
             it.from(it.hivemqFolder) { copySpec ->
                 copySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
             }
-            it.from(it.extensionZipTask.map { zip -> project.zipTree(zip.outputs.files.singleFile) }) { copySpec ->
+            it.from(it.extensionZipTask.map { zip -> project.zipTree(zip.archiveFile) }) { copySpec ->
                 copySpec.into(EXTENSIONS_FOLDER_NAME)
             }
             it.into(project.buildDir.resolve(HOME_FOLDER_NAME))
