@@ -34,7 +34,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
         const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
-        const val HIVEMQ_HOME_PROPERTY: String = "hivemq.home"
+        const val HIVEMQ_HOME_PROPERTY_NAME: String = "hivemq.home"
         const val HOME_FOLDER_NAME: String = "hivemq-home"
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"
     }
@@ -201,9 +201,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.description = "Runs HiveMQ with the extension"
 
             it.dependsOn(prepareHivemqHomeTask)
-            val hivemqHome = prepareHivemqHomeTask.get().outputs.files.asPath
+            val hivemqHome = prepareHivemqHomeTask.get().destinationDir.path
             it.classpath("$hivemqHome/bin/hivemq.jar")
-            it.systemProperty(HIVEMQ_HOME_PROPERTY, hivemqHome)
+            it.systemProperty(HIVEMQ_HOME_PROPERTY_NAME, hivemqHome)
             it.jvmArgs("-Djava.net.preferIPv4Stack=true", "-noverify")
             it.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
             it.jvmArgs("--add-opens", "java.base/java.nio=ALL-UNNAMED")
