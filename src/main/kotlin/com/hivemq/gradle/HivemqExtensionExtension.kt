@@ -17,7 +17,7 @@ interface HivemqExtensionExtension {
     var author: String?
 
     /**
-     * Priority of the HiveMQ extension, default: 1000
+     * Priority of the HiveMQ extension, default: 0
      */
     var priority: Int
 
