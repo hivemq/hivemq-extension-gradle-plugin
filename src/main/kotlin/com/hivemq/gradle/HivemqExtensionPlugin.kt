@@ -51,14 +51,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         registerCustomZipTask(project, extension, resourcesTask)
     }
 
-    private fun createExtension(project: Project): HivemqExtensionExtension {
-        return project.extensions.create(
-            HivemqExtensionExtension::class.java,
-            EXTENSION_NAME,
-            HivemqExtensionExtensionImpl::class.java
-        )
-    }
-
     fun configureJava(project: Project) {
         if (!project.plugins.hasPlugin("java")) {
             project.plugins.apply(JavaPlugin::class.java)
@@ -68,6 +60,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.sourceCompatibility = JavaVersion.VERSION_11
             it.targetCompatibility = JavaVersion.VERSION_11
         }
+    }
+
+    fun createExtension(project: Project): HivemqExtensionExtension {
+        return project.extensions.create(
+            HivemqExtensionExtension::class.java,
+            EXTENSION_NAME,
+            HivemqExtensionExtensionImpl::class.java
+        )
     }
 
     private fun addDependencies(project: Project, extension: HivemqExtensionExtension) {
