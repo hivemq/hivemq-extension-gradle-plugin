@@ -84,7 +84,7 @@ hivemqExtension {
 ## Custom Resources
 
 You can use the `hivemqExtensionResources` task to add custom resources to the extension zip.
-It is a normal gradle `Copy`/`Sync` task, so you can use `from`, `exclude`, `include`, `rename` 
+As it is a `Copy`/`Sync` task, you can use `from`, `exclude`, `include`, `rename`, etc.
 ([gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html))
 
 Example:
@@ -106,7 +106,7 @@ Example:
 
 ```kotlin
 tasks.prepareHivemqHome {
-    hivemqFolder.set("/path/to/a/hivemq/folder") // only mandatory property
+    hivemqFolder.set("/path/to/a/hivemq/folder") // the only mandatory property
     from("config.xml") { into("conf") }
     from("src/test/resources/other-extension") { into("extensions") }
 }
