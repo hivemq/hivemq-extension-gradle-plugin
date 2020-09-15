@@ -1,4 +1,4 @@
-package com.hivemq.gradle
+package com.hivemq.extension.gradle
 
 /**
  * @author Lukas Brand

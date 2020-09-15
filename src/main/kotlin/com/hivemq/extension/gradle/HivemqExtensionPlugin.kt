@@ -1,4 +1,4 @@
-package com.hivemq.gradle
+package com.hivemq.extension.gradle
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
