@@ -8,7 +8,6 @@ Content of the `settings.gradle` file:
 ```groovy
 pluginManagement {
     repositories {
-        mavenLocal()
         gradlePluginPortal()
     }
 
