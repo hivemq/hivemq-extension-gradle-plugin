@@ -12,7 +12,7 @@ pluginManagement {
     }
 
     plugins {
-        id 'com.hivemq.extension' version "4.4.1"
+        id 'com.hivemq.extension' version "0.1.0"
     }
 }
 
@@ -48,7 +48,7 @@ pluginManagement {
     }
 
     plugins {
-        id("com.hivemq.extension") version "4.4.1"
+        id("com.hivemq.extension") version "0.1.0"
     }
 }
 
