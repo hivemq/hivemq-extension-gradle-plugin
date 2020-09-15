@@ -74,6 +74,12 @@ hivemqExtension {
 }
 ```
 
+## Build
+
+Execute the `hivemqExtensionZip` task to build your extension.
+
+You can find the output in `build/hivemq-extension` as `<project.name>-<project.version>.zip`
+
 ## Requirements
 
 - Gradle 6.x or higher is required
@@ -99,8 +105,11 @@ tasks.hivemqExtensionResources {
 ## Run and Debug
 
 Use the `prepareHivemqHome` task to define the contents of the HiveMQ home folder.
+Your extension is built and added automatically.
+
 As it is a `Copy`/`Sync` task ([gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html)), 
 you can add any files (configs, other extensions, etc.).
+The resulting home folder can be seen in `build/hivemq-home`.
 
 Example:
 
@@ -112,7 +121,7 @@ tasks.prepareHivemqHome {
 }
 ```
 
-Execute the `runHivemqWithExtension` to run HiveMQ with your extension.
+Execute the `runHivemqWithExtension` task to run HiveMQ with your extension from the configured home folder.
 
 As it is a gradle `JavaExec` task, you can easily set debug options, system properties, JVM arguments, etc.
 
