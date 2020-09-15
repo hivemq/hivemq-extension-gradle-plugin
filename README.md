@@ -4,7 +4,7 @@ This gradle plugin eases the development of HiveMQ extensions.
 
 ## Example with Groovy DSL
 
-- Content of the `settings.gradle.kts` file:
+Content of the `settings.gradle` file:
 ```groovy
 pluginManagement {
     repositories {
@@ -20,7 +20,7 @@ pluginManagement {
 rootProject.name = 'example-extension'
 ```
 
-- Contents of the `build.gradle.kts` file:
+Contents of the `build.gradle` file:
 ```groovy
 plugins {
     id 'com.hivemq.extension'
@@ -41,7 +41,7 @@ hivemqExtension {
 
 ## Example with Kotlin DSL
 
-- Content of the `settings.gradle.kts` file:
+Content of the `settings.gradle.kts` file:
 ```kotlin
 pluginManagement {
     repositories {
@@ -56,7 +56,7 @@ pluginManagement {
 rootProject.name = "example-extension"
 ```
 
-- Contents of the `build.gradle.kts` file:
+Contents of the `build.gradle.kts` file:
 ```kotlin
 plugins {
     id("com.hivemq.extension")
