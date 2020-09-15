@@ -3,6 +3,7 @@ plugins {
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("maven-publish")
+    id("com.github.hierynomus.license")
     id("com.github.sgtsilvio.gradle.metadata")
 }
 
@@ -74,4 +75,9 @@ pluginBundle {
     website = "https://github.com/hivemq/hivemq-extension-gradle-plugin"
     vcsUrl = "https://github.com/hivemq/hivemq-extension-gradle-plugin.git"
     tags = listOf("hivemq", "extension")
+}
+
+license {
+    header = rootDir.resolve("HEADER")
+    mapping("kt", "SLASHSTAR_STYLE")
 }
