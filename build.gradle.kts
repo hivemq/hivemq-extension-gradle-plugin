@@ -66,7 +66,7 @@ gradlePlugin {
             id = "${group}.${name}"
             displayName = metadata.readableName
             description = project.description
-            implementationClass = "${group}.gradle.HivemqExtensionPlugin"
+            implementationClass = "${group}.extension.gradle.HivemqExtensionPlugin"
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.hivemq.gradle
+package com.hivemq.extension.gradle
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Sync
