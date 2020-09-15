@@ -62,7 +62,7 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("hivemq-extension-plugin") {
+        create("extension") {
             id = "${group}.${name}"
             displayName = metadata.readableName
             description = project.description
