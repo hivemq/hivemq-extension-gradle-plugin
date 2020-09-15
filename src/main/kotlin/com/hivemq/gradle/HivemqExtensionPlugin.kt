@@ -7,6 +7,7 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
@@ -83,6 +84,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun registerJarTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<ShadowJar> {
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
+        project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME, Copy::class.java) {
+            it.from(serviceDescriptorTask) { copySpec -> copySpec.into("META-INF/services") }
+        }
 
         return project.tasks.register(taskName(JAR_SUFFIX), ShadowJar::class.java) {
             it.group = GROUP_NAME
@@ -95,7 +99,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.from(convention.sourceSets.getByName("main").output)
             it.configurations = listOf(project.configurations.getByName("runtimeClasspath"))
             it.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
-            it.from(serviceDescriptorTask) { copySpec -> copySpec.into("META-INF/services") }
         }
     }
 
