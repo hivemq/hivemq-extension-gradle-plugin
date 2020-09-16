@@ -68,11 +68,17 @@ hivemqExtension {
 }
 ```
 
-## Build
+## Tasks
 
-Execute the `hivemqExtensionZip` task to build your extension.
-
-You can find the output in `build/hivemq-extension` as `<project.name>-<project.version>.zip`
+| Task                               | Description |
+|------------------------------------|-------------|
+| `hivemqExtensionJar`               | Assembles the jar archive of the HiveMQ extension |
+| `hivemqExtensionResources`         | Collects the resources of the HiveMQ extension |
+| `hivemqExtensionServiceDescriptor` | Generates the service descriptor of the HiveMQ extension |
+| `hivemqExtensionXml`               | Generates the xml descriptor of the HiveMQ extension |
+| `hivemqExtensionZip`               | Assembles the zip distribution of the HiveMQ extension |
+| `prepareHivemqHome`                | Collects the resources of the HiveMQ home for `runHivemqWithExtension` |
+| `runHivemqWithExtension`           | Runs HiveMQ with the extension |
 
 ## Requirements
 
@@ -80,6 +86,12 @@ You can find the output in `build/hivemq-extension` as `<project.name>-<project.
 - Do not create descriptor files by yourself (`hivemq-extension.xml` or `com.hivemq.extension.sdk.api.ExtensionMain`).
   They are automatically generated.
 - Do not add the `hivemq-extension-sdk` dependency yourself. It is added automatically with the right scopes.
+
+## Build
+
+Execute the `hivemqExtensionZip` task to build your extension.
+
+You can find the output in `build/hivemq-extension` as `<project.name>-<project.version>.zip`
 
 ## Custom Resources
 
