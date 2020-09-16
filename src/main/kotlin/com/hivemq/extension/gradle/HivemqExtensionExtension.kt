@@ -42,7 +42,7 @@ interface HivemqExtensionExtension {
     var startPriority: Int
 
     /**
-     * Main class of the HiveMQ extension SDK, required
+     * Main class of the HiveMQ extension, required
      */
     var mainClass: String?
 

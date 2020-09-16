@@ -9,12 +9,8 @@ This gradle plugin eases the development of HiveMQ extensions.
 Content of the `settings.gradle` file:
 ```groovy
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-    }
-
     plugins {
-        id 'com.hivemq.extension' version "0.1.0"
+        id 'com.hivemq.extension' version '0.1.0'
     }
 }
 
@@ -45,10 +41,6 @@ hivemqExtension {
 Content of the `settings.gradle.kts` file:
 ```kotlin
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-    }
-
     plugins {
         id("com.hivemq.extension") version "0.1.0"
     }
