@@ -1,5 +1,7 @@
 # HiveMQ Extension Gradle Plugin
 
+[![Maven metadata URL](https://img.shields.io/maven-metadata/v?color=brightgreen&label=gradle%20plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fcom%2Fhivemq%2Fextension%2Fcom.hivemq.extension.gradle.plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/com.hivemq.extension)
+
 This gradle plugin eases the development of HiveMQ extensions.
 
 ## Example with Groovy DSL
