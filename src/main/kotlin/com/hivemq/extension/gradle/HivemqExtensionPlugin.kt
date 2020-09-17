@@ -83,11 +83,15 @@ class HivemqExtensionPlugin : Plugin<Project> {
         )
     }
 
+    fun addRepositories(project: Project) {
+        if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
+            project.repositories.mavenCentral()
+        }
+    }
+
     private fun addDependencies(project: Project, extension: HivemqExtensionExtension) {
         project.afterEvaluate {
-            if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
-                project.repositories.mavenCentral()
-            }
+            addRepositories(project)
             val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion}"
             project.dependencies.add("compileOnly", sdkDependency)
             project.dependencies.add("testImplementation", sdkDependency)
@@ -267,7 +271,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
                 val customJarTask = when (customJarTaskAny) {
                     is TaskProvider<*> -> customJarTaskAny
                     is String -> project.tasks.named(customJarTaskAny)
-                    else -> throw GradleException("The custom jar task must either be a Task or String.")
+                    else -> throw GradleException("The custom jar task must either be a TaskProvider or String.")
                 }
                 registerZipTask(project, customJarTask, resourcesTask, TASK_PREFIX)
             }
