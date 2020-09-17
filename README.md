@@ -95,7 +95,9 @@ You can find the output in `build/hivemq-extension` as `<project.name>-<project.
 
 ## Custom Resources
 
-You can use the `hivemqExtensionResources` task to add custom resources to the extension zip.
+You can add custom resources to the extension zip by putting files into the `src/hivemq-extension` directory.
+
+Additionally, you can use the `hivemqExtensionResources` task to add custom resources from any location or gradle task.
 As it is a `Copy`/`Sync` task, you can use `from`, `exclude`, `include`, `rename`, etc.
 ([gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html))
 
