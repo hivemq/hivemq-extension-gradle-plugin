@@ -38,6 +38,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val TASK_PREFIX: String = "hivemqExtension"
         const val JAR_SUFFIX: String = "jar"
         const val RESOURCES_SUFFIX: String = "resources"
+        const val RESOURCES_FOLDER_PATH: String = "src/hivemq-extension"
         const val ZIP_SUFFIX: String = "zip"
         const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
         const val EXTENSION_MAIN_CLASS_NAME: String = "com.hivemq.extension.sdk.api.ExtensionMain"
@@ -150,6 +151,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.description = "Collects the resources of the HiveMQ extension"
 
             it.from(xmlTask)
+            it.from(RESOURCES_FOLDER_PATH)
             it.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
         }
     }
