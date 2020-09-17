@@ -16,8 +16,7 @@
 package com.hivemq.extension.gradle
 
 /**
- * @author Lukas Brand
- * @author Silvio Giebl
+ * @author Lukas Brand, Silvio Giebl
  */
 open class HivemqExtensionExtensionImpl : HivemqExtensionExtension {
     override var name: String? = null

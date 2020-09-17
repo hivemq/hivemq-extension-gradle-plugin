@@ -27,8 +27,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 
 /**
- * @author Lukas Brand
- * @author Silvio Giebl
+ * @author Lukas Brand, Silvio Giebl
  */
 class HivemqExtensionPlugin : Plugin<Project> {
 

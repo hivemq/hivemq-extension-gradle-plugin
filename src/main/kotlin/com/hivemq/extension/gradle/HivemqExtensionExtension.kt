@@ -16,8 +16,9 @@
 package com.hivemq.extension.gradle
 
 /**
- * @author Lukas Brand
- * @author Silvio Giebl
+ * Gradle extension for configuring the HiveMQ extension build.
+ *
+ * @author Lukas Brand, Silvio Giebl
  */
 interface HivemqExtensionExtension {
 
@@ -47,7 +48,7 @@ interface HivemqExtensionExtension {
     var mainClass: String?
 
     /**
-     * Version of the HiveMQ extension SDK, default: latest.integration
+     * Version of the HiveMQ extension SDK, recommended to specify, default: latest.integration
      */
     var sdkVersion: String
 
