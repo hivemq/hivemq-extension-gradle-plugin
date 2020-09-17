@@ -10,7 +10,7 @@ Content of the `settings.gradle` file:
 ```groovy
 pluginManagement {
     plugins {
-        id 'com.hivemq.extension' version '0.1.0'
+        id 'com.hivemq.extension' version '0.1.1'
     }
 }
 
@@ -42,7 +42,7 @@ Content of the `settings.gradle.kts` file:
 ```kotlin
 pluginManagement {
     plugins {
-        id("com.hivemq.extension") version "0.1.0"
+        id("com.hivemq.extension") version "0.1.1"
     }
 }
 
