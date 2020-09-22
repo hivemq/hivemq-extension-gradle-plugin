@@ -43,7 +43,7 @@ interface HivemqExtensionExtension {
     var startPriority: Int
 
     /**
-     * Main class of the HiveMQ extension, required
+     * Main class of the HiveMQ extension, will be determined automatically if not set
      */
     var mainClass: String?
 

@@ -128,19 +128,38 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.group = GROUP_NAME
             it.description = "Generates the service descriptor of the HiveMQ extension"
 
-            it.inputs.property("mainClass", { extension.mainClass })
+            it.inputs.property("mainClass", { extension.mainClass ?: "" })
 
             val descriptorFile =
                 project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_MAIN_CLASS_NAME)
             it.outputs.file(descriptorFile)
+            it.outputs.upToDateWhen { extension.mainClass != null }
 
             it.doFirst {
+                if (extension.mainClass == null) {
+                    extension.mainClass = findMainClass(project)
+                }
                 val mainClass = extension.mainClass ?: throw GradleException("$EXTENSION_NAME: mainClass is missing.")
 
                 descriptorFile.parentFile.mkdirs()
                 descriptorFile.writeText(mainClass)
             }
         }
+    }
+
+    private fun findMainClass(project: Project): String? {
+        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        val regex = Regex("[ ,:]ExtensionMain[ ,{]")
+        var mainClass: String? = null
+        javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).allSource.visit { element ->
+            if (!element.isDirectory && (element.file.name.endsWith(".java") || element.file.name.endsWith(".kt")) &&
+                element.file.readText().contains(regex)
+            ) {
+                mainClass = element.relativePath.pathString.substringBeforeLast('.').replace('/', '.')
+                element.stopVisiting()
+            }
+        }
+        return mainClass
     }
 
     fun registerResourcesTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<Sync> {
