@@ -18,6 +18,8 @@ package com.hivemq.extension.gradle
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -44,6 +46,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val EXTENSION_MAIN_CLASS_NAME: String = "com.hivemq.extension.sdk.api.ExtensionMain"
         const val XML_SUFFIX: String = "xml"
         const val EXTENSION_XML_NAME: String = "hivemq-extension.xml"
+        const val PROVIDED_CONFIGURATION_NAME: String = "hivemqProvided"
 
         const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
         const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
@@ -83,6 +86,17 @@ class HivemqExtensionPlugin : Plugin<Project> {
         )
     }
 
+    fun addConfiguration(project: Project): NamedDomainObjectProvider<Configuration> {
+        val providedConfiguration = project.configurations.register(PROVIDED_CONFIGURATION_NAME) {
+            it.isCanBeResolved = true
+            it.isCanBeConsumed = false
+        }
+        project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
+            it.extendsFrom(providedConfiguration.get())
+        }
+        return providedConfiguration
+    }
+
     fun addRepositories(project: Project) {
         if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
             project.repositories.mavenCentral()
@@ -90,11 +104,11 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     private fun addDependencies(project: Project, extension: HivemqExtensionExtension) {
+        addConfiguration(project)
         project.afterEvaluate {
             addRepositories(project)
             val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion}"
-            project.dependencies.add("compileOnly", sdkDependency)
-            project.dependencies.add("testImplementation", sdkDependency)
+            project.dependencies.add(PROVIDED_CONFIGURATION_NAME, sdkDependency)
         }
     }
 
@@ -115,6 +129,15 @@ class HivemqExtensionPlugin : Plugin<Project> {
             it.from(javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).output)
             it.configurations =
                 listOf(project.configurations.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))
+            it.dependencies { dependencyFilter ->
+                val providedConfiguration = project.configurations.getByName(PROVIDED_CONFIGURATION_NAME)
+                providedConfiguration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
+                    val id = artifact.id.componentIdentifier
+                    if (id is ModuleComponentIdentifier) {
+                        dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.module}"))
+                    }
+                }
+            }
             it.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
         }
     }
