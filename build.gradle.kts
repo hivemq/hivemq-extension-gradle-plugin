@@ -57,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.jengelman.gradle.plugins:shadow:${property("shadow.version")}")
+    api("com.github.jengelman.gradle.plugins:shadow:${property("shadow.version")}")
 }
 
 gradlePlugin {
