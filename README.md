@@ -83,6 +83,7 @@ hivemqExtension {
 ## Requirements
 
 - Gradle 6.x or higher is required
+- JDK 11 or higher is required
 - Do not create descriptor files by yourself (`hivemq-extension.xml` or `com.hivemq.extension.sdk.api.ExtensionMain`).
   They are automatically generated.
 - Do not add the `hivemq-extension-sdk` dependency yourself. It is added automatically with the right scopes.
@@ -113,10 +114,12 @@ tasks.hivemqExtensionResources {
 ## Run and Debug
 
 Use the `prepareHivemqHome` task to define the contents of the HiveMQ home folder.
+It is mandatory to set the `hivemqFolder` property to the path of an HiveMQ directory (unzipped).
+The contents of the HiveMQ directory are copied to `build/hivemq-home`.
 Your extension is built and added automatically.
 
 As it is a `Copy`/`Sync` task ([gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html)), 
-you can add any files (configs, other extensions, etc.).
+you can add any files (configs, licenses, other extensions, etc.).
 The resulting home folder can be seen in `build/hivemq-home`.
 
 Example:

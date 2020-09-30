@@ -25,7 +25,7 @@ import org.gradle.api.tasks.bundling.Zip
 open class PrepareHivemqHome : Sync() {
 
     /**
-     * Specifies the directory (unzipped) of HiveMQ.
+     * Specifies the path to an HiveMQ directory (unzipped).
      * The contents are copied to <code>build/hivemq-home</code> which is used by the
      * <code>runHivemqWithExtension</code> task as the hivemq home folder.
      *
