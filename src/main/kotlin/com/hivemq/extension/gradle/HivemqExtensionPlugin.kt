@@ -300,6 +300,12 @@ class HivemqExtensionPlugin : Plugin<Project> {
             }
             it.into(project.buildDir.resolve(HOME_FOLDER_NAME))
             it.duplicatesStrategy = DuplicatesStrategy.WARN
+
+            it.doFirst { _ ->
+                if (!project.file(it.hivemqFolder.get()).exists()) {
+                    throw GradleException("hivemqFolder ${it.hivemqFolder.get()} does not exist")
+                }
+            }
         }
     }
 
