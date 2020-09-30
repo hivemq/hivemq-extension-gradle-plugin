@@ -116,7 +116,8 @@ tasks.hivemqExtensionResources {
 Use the `prepareHivemqHome` task to define the contents of the HiveMQ home folder.
 It is mandatory to set the `hivemqFolder` property to the path of an HiveMQ directory (unzipped).
 The contents of the HiveMQ directory are copied to `build/hivemq-home`.
-Your extension is built and added automatically.
+Your extension is built via the `hivemqExtensionZip` task and added automatically to `build/hivemq-home/extensions`,
+but it is also possible to specify a custom `Zip` task via the `extensionZipTask` property.
 
 As it is a `Copy`/`Sync` task ([gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html)), 
 you can add any files (configs, licenses, other extensions, etc.).
