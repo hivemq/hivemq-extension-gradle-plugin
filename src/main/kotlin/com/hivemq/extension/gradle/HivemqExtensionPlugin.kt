@@ -72,9 +72,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
             project.plugins.apply(JavaPlugin::class.java)
         }
 
-        project.extensions.configure<JavaPluginExtension>("java") {
-            it.sourceCompatibility = JavaVersion.VERSION_11
-            it.targetCompatibility = JavaVersion.VERSION_11
+        project.extensions.configure<JavaPluginExtension>("java") { java ->
+            java.sourceCompatibility = JavaVersion.VERSION_11
+            java.targetCompatibility = JavaVersion.VERSION_11
         }
     }
 
@@ -87,12 +87,12 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun addConfiguration(project: Project): NamedDomainObjectProvider<Configuration> {
-        val providedConfiguration = project.configurations.register(PROVIDED_CONFIGURATION_NAME) {
-            it.isCanBeResolved = true
-            it.isCanBeConsumed = false
+        val providedConfiguration = project.configurations.register(PROVIDED_CONFIGURATION_NAME) { configuration ->
+            configuration.isCanBeResolved = true
+            configuration.isCanBeConsumed = false
         }
-        project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
-            it.extendsFrom(providedConfiguration.get())
+        project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) { implementationConfiguration ->
+            implementationConfiguration.extendsFrom(providedConfiguration.get())
         }
         return providedConfiguration
     }
@@ -114,22 +114,24 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun registerJarTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<ShadowJar> {
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
-        project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME, Copy::class.java) {
-            it.from(serviceDescriptorTask) { copySpec -> copySpec.into("META-INF/services") }
+        project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME, Copy::class.java) { copy ->
+            copy.from(serviceDescriptorTask) { copySpec -> copySpec.into("META-INF/services") }
         }
 
-        return project.tasks.register(TASK_PREFIX + JAR_SUFFIX.capitalize(), ShadowJar::class.java) {
-            it.group = GROUP_NAME
-            it.description = "Assembles the jar archive of the HiveMQ extension"
+        return project.tasks.register(TASK_PREFIX + JAR_SUFFIX.capitalize(), ShadowJar::class.java) { shadowJar ->
+            shadowJar.group = GROUP_NAME
+            shadowJar.description = "Assembles the jar archive of the HiveMQ extension"
 
-            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
+            shadowJar.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
 
-            it.manifest.inheritFrom(project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java).get().manifest)
+            shadowJar.manifest.inheritFrom(
+                project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java).get().manifest
+            )
             val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            it.from(javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).output)
-            it.configurations =
+            shadowJar.from(javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).output)
+            shadowJar.configurations =
                 listOf(project.configurations.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))
-            it.dependencies { dependencyFilter ->
+            shadowJar.dependencies { dependencyFilter ->
                 val providedConfiguration = project.configurations.getByName(PROVIDED_CONFIGURATION_NAME)
                 providedConfiguration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
                     val id = artifact.id.componentIdentifier
@@ -138,7 +140,13 @@ class HivemqExtensionPlugin : Plugin<Project> {
                     }
                 }
             }
-            it.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
+            shadowJar.exclude(
+                "META-INF/INDEX.LIST",
+                "META-INF/*.SF",
+                "META-INF/*.DSA",
+                "META-INF/*.RSA",
+                "module-info.class"
+            )
         }
     }
 
@@ -147,18 +155,18 @@ class HivemqExtensionPlugin : Plugin<Project> {
         extension: HivemqExtensionExtension
     ): TaskProvider<Task> {
 
-        return project.tasks.register(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
-            it.group = GROUP_NAME
-            it.description = "Generates the service descriptor of the HiveMQ extension"
+        return project.tasks.register(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) { task ->
+            task.group = GROUP_NAME
+            task.description = "Generates the service descriptor of the HiveMQ extension"
 
-            it.inputs.property("mainClass", { extension.mainClass ?: "" })
+            task.inputs.property("mainClass", { extension.mainClass ?: "" })
 
             val descriptorFile =
                 project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_MAIN_CLASS_NAME)
-            it.outputs.file(descriptorFile)
-            it.outputs.upToDateWhen { extension.mainClass != null }
+            task.outputs.file(descriptorFile)
+            task.outputs.upToDateWhen { extension.mainClass != null }
 
-            it.doFirst {
+            task.doFirst {
                 if (extension.mainClass == null) {
                     extension.mainClass = findMainClass(project)
                 }
@@ -188,32 +196,32 @@ class HivemqExtensionPlugin : Plugin<Project> {
     fun registerResourcesTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<Sync> {
         val xmlTask = registerXmlTask(project, extension)
 
-        return project.tasks.register(TASK_PREFIX + RESOURCES_SUFFIX.capitalize(), Sync::class.java) {
-            it.group = GROUP_NAME
-            it.description = "Collects the resources of the HiveMQ extension"
+        return project.tasks.register(TASK_PREFIX + RESOURCES_SUFFIX.capitalize(), Sync::class.java) { sync ->
+            sync.group = GROUP_NAME
+            sync.description = "Collects the resources of the HiveMQ extension"
 
-            it.from(xmlTask)
-            it.from(RESOURCES_FOLDER_PATH)
-            it.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
+            sync.from(xmlTask)
+            sync.from(RESOURCES_FOLDER_PATH)
+            sync.into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
         }
     }
 
     private fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<Task> {
-        return project.tasks.register(TASK_PREFIX + XML_SUFFIX.capitalize()) {
-            it.group = GROUP_NAME
-            it.description = "Generates the xml descriptor of the HiveMQ extension"
+        return project.tasks.register(TASK_PREFIX + XML_SUFFIX.capitalize()) { task ->
+            task.group = GROUP_NAME
+            task.description = "Generates the xml descriptor of the HiveMQ extension"
 
-            it.inputs.property("id", { project.name })
-            it.inputs.property("version", { project.version })
-            it.inputs.property("name", { extension.name })
-            it.inputs.property("author", { extension.author })
-            it.inputs.property("priority", { extension.priority })
-            it.inputs.property("start-priority", { extension.startPriority })
+            task.inputs.property("id", { project.name })
+            task.inputs.property("version", { project.version })
+            task.inputs.property("name", { extension.name })
+            task.inputs.property("author", { extension.author })
+            task.inputs.property("priority", { extension.priority })
+            task.inputs.property("start-priority", { extension.startPriority })
 
             val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_XML_NAME)
-            it.outputs.file(xmlFile)
+            task.outputs.file(xmlFile)
 
-            it.doFirst {
+            task.doFirst {
                 val name = extension.name ?: throw GradleException("$EXTENSION_NAME: name is missing.")
                 val author = extension.author ?: throw GradleException("$EXTENSION_NAME: author is missing.")
 
@@ -247,37 +255,37 @@ class HivemqExtensionPlugin : Plugin<Project> {
         return project.tasks.register(
             taskPrefix + specialName.capitalize() + ZIP_SUFFIX.capitalize(),
             Zip::class.java
-        ) {
-            it.group = GROUP_NAME
-            it.description = "Assembles the zip distribution of the HiveMQ extension" +
+        ) { zip ->
+            zip.group = GROUP_NAME
+            zip.description = "Assembles the zip distribution of the HiveMQ extension" +
                     if (specialName.isEmpty()) "" else " containing the ${specialName.decapitalize()} jar"
 
-            it.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
-            it.archiveClassifier.set(specialName.toLowerCase())
+            zip.destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
+            zip.archiveClassifier.set(specialName.toLowerCase())
 
-            it.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
-            it.from(resourcesTask)
-            it.into(project.name)
+            zip.from(jarTask) { copySpec -> copySpec.rename { "${project.name}-${project.version}.jar" } }
+            zip.from(resourcesTask)
+            zip.into(project.name)
         }
     }
 
     fun registerRunHivemqWithExtensionTask(project: Project, zipTask: TaskProvider<Zip>): TaskProvider<JavaExec> {
         val prepareHivemqHomeTask = registerPrepareHivemqHomeTask(project, zipTask)
 
-        return project.tasks.register(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME, JavaExec::class.java) {
-            it.group = GROUP_NAME
-            it.description = "Runs HiveMQ with the extension"
+        return project.tasks.register(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME, JavaExec::class.java) { javaExec ->
+            javaExec.group = GROUP_NAME
+            javaExec.description = "Runs HiveMQ with the extension"
 
-            it.dependsOn(prepareHivemqHomeTask)
+            javaExec.dependsOn(prepareHivemqHomeTask)
             val hivemqHome = prepareHivemqHomeTask.get().destinationDir.path
-            it.classpath("$hivemqHome/bin/hivemq.jar")
-            it.systemProperty(HIVEMQ_HOME_PROPERTY_NAME, hivemqHome)
-            it.jvmArgs("-Djava.net.preferIPv4Stack=true", "-noverify")
-            it.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
-            it.jvmArgs("--add-opens", "java.base/java.nio=ALL-UNNAMED")
-            it.jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED")
-            it.jvmArgs("--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED")
-            it.jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+            javaExec.classpath("$hivemqHome/bin/hivemq.jar")
+            javaExec.systemProperty(HIVEMQ_HOME_PROPERTY_NAME, hivemqHome)
+            javaExec.jvmArgs("-Djava.net.preferIPv4Stack=true", "-noverify")
+            javaExec.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+            javaExec.jvmArgs("--add-opens", "java.base/java.nio=ALL-UNNAMED")
+            javaExec.jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED")
+            javaExec.jvmArgs("--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED")
+            javaExec.jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
         }
     }
 
@@ -286,24 +294,24 @@ class HivemqExtensionPlugin : Plugin<Project> {
         zipTask: TaskProvider<Zip>
     ): TaskProvider<PrepareHivemqHome> {
 
-        return project.tasks.register(PREPARE_HIVEMQ_HOME_TASK_NAME, PrepareHivemqHome::class.java) {
-            it.group = GROUP_NAME
-            it.description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
+        return project.tasks.register(PREPARE_HIVEMQ_HOME_TASK_NAME, PrepareHivemqHome::class.java) { task ->
+            task.group = GROUP_NAME
+            task.description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
 
-            it.extensionZipTask.set(zipTask)
+            task.extensionZipTask.set(zipTask)
 
-            it.from(it.hivemqFolder) { copySpec ->
+            task.from(task.hivemqFolder) { copySpec ->
                 copySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
             }
-            it.from(it.extensionZipTask.map { zip -> project.zipTree(zip.archiveFile) }) { copySpec ->
+            task.from(task.extensionZipTask.map { zip -> project.zipTree(zip.archiveFile) }) { copySpec ->
                 copySpec.into(EXTENSIONS_FOLDER_NAME)
             }
-            it.into(project.buildDir.resolve(HOME_FOLDER_NAME))
-            it.duplicatesStrategy = DuplicatesStrategy.WARN
+            task.into(project.buildDir.resolve(HOME_FOLDER_NAME))
+            task.duplicatesStrategy = DuplicatesStrategy.WARN
 
-            it.doFirst { _ ->
-                if (!project.file(it.hivemqFolder.get()).exists()) {
-                    throw GradleException("hivemqFolder ${it.hivemqFolder.get()} does not exist")
+            task.doFirst {
+                if (!project.file(task.hivemqFolder.get()).exists()) {
+                    throw GradleException("hivemqFolder ${task.hivemqFolder.get()} does not exist")
                 }
             }
         }
