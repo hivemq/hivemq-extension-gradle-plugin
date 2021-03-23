@@ -11,29 +11,29 @@ group = "com.hivemq"
 description = "A gradle plugin to ease the development of HiveMQ extensions"
 
 metadata {
-    readableName = "HiveMQ Extension Gradle Plugin"
+    readableName.set("HiveMQ Extension Gradle Plugin")
     organization {
-        name = "HiveMQ and the HiveMQ Community"
-        url = "https://www.hivemq.com/"
+        name.set("HiveMQ and the HiveMQ Community")
+        url.set("https://www.hivemq.com/")
     }
     license {
         apache2()
     }
     developers {
         developer {
-            id = "ltb"
-            name = "Lukas Brand"
-            email = "lukas.brand@hivemq.com"
+            id.set("ltb")
+            name.set("Lukas Brand")
+            email.set("lukas.brand@hivemq.com")
         }
         developer {
-            id = "SgtSilvio"
-            name = "Silvio Giebl"
-            email = "silvio.giebl@hivemq.com"
+            id.set("SgtSilvio")
+            name.set("Silvio Giebl")
+            email.set("silvio.giebl@hivemq.com")
         }
     }
     github {
-        org = "hivemq"
-        repo = "hivemq-extension-gradle-plugin"
+        org.set("hivemq")
+        repo.set("hivemq-extension-gradle-plugin")
         issues()
     }
 }
@@ -63,10 +63,10 @@ dependencies {
 gradlePlugin {
     plugins {
         create("extension") {
-            id = "${group}.${name}"
-            displayName = metadata.readableName
+            id = "$group.$name"
+            displayName = metadata.readableName.get()
             description = project.description
-            implementationClass = "${group}.extension.gradle.HivemqExtensionPlugin"
+            implementationClass = "$group.extension.gradle.HivemqExtensionPlugin"
         }
     }
 }
