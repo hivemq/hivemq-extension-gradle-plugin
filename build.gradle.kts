@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm")
-    id("java-gradle-plugin")
+    `java-gradle-plugin`
+    `kotlin-dsl`
     id("com.gradle.plugin-publish")
     id("maven-publish")
     id("com.github.hierynomus.license")

@@ -15,9 +15,9 @@
  */
 package com.hivemq.extension.gradle
 
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.kotlin.dsl.property
 
 /**
  * @author Silvio Giebl
@@ -31,11 +31,11 @@ open class PrepareHivemqHome : Sync() {
      *
      * Can be any type allowed by [org.gradle.api.Project.file].
      */
-    val hivemqFolder: Property<Any> = project.objects.property(Any::class.java)
+    val hivemqFolder = project.objects.property<Any>()
 
     /**
      * Specifies the [Zip] task that builds the current HiveMQ extension zip archive.
      * The contents are unzipped to <code>build/hivemq-home/extensions</code>.
      */
-    val extensionZipTask: Property<Zip> = project.objects.property(Zip::class.java)
+    val extensionZipTask = project.objects.property<Zip>()
 }
