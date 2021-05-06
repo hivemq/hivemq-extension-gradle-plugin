@@ -27,6 +27,8 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.util.GradleVersion
 
 /**
  * @author Lukas Brand, Silvio Giebl
@@ -73,8 +75,12 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
 
         project.extensions.configure<JavaPluginExtension>("java") { java ->
-            java.sourceCompatibility = JavaVersion.VERSION_11
-            java.targetCompatibility = JavaVersion.VERSION_11
+            if (GradleVersion.current() >= GradleVersion.version("6.7")) {
+                java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+            } else {
+                java.sourceCompatibility = JavaVersion.VERSION_11
+                java.targetCompatibility = JavaVersion.VERSION_11
+            }
         }
     }
 
@@ -166,7 +172,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             task.outputs.file(descriptorFile)
             task.outputs.upToDateWhen { extension.mainClass != null }
 
-            task.doFirst {
+            task.doLast {
                 if (extension.mainClass == null) {
                     extension.mainClass = findMainClass(project)
                 }
@@ -221,7 +227,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_XML_NAME)
             task.outputs.file(xmlFile)
 
-            task.doFirst {
+            task.doLast {
                 val name = extension.name ?: throw GradleException("$EXTENSION_NAME: name is missing.")
                 val author = extension.author ?: throw GradleException("$EXTENSION_NAME: author is missing.")
 
