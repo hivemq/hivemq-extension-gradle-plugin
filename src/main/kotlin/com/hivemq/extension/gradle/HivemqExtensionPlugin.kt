@@ -19,7 +19,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -135,10 +134,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
             from(project.the<JavaPluginConvention>().sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].output)
             configurations = listOf(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
             val providedConfiguration = project.configurations[PROVIDED_CONFIGURATION_NAME]
-            for (artifact in providedConfiguration.resolvedConfiguration.resolvedArtifacts) {
-                val id = artifact.id.componentIdentifier
-                if (id is ModuleComponentIdentifier) {
-                    dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.module}"))
+            for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
+                val id = component.moduleVersion
+                if (id != null) {
+                    dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.name}"))
                 }
             }
             exclude(
