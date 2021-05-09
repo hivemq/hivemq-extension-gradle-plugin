@@ -1,8 +1,8 @@
 plugins {
-    `java-gradle-plugin`
     `kotlin-dsl`
+    `java-gradle-plugin`
     id("com.gradle.plugin-publish")
-    id("maven-publish")
+    `maven-publish`
     id("com.github.hierynomus.license")
     id("com.github.sgtsilvio.gradle.metadata")
 }
@@ -35,15 +35,6 @@ metadata {
         org.set("hivemq")
         repo.set("hivemq-extension-gradle-plugin")
         issues()
-    }
-}
-
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
     }
 }
 
