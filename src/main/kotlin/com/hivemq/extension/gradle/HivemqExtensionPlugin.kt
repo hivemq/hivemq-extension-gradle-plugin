@@ -20,11 +20,13 @@ import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
@@ -55,6 +57,11 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val HIVEMQ_HOME_PROPERTY_NAME: String = "hivemq.home"
         const val HOME_FOLDER_NAME: String = "hivemq-home"
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"
+
+        const val INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest"
+        const val INTEGRATION_TEST_TASK_NAME = "integrationTest"
+        const val PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME = "prepareHivemqExtensionTest"
+        const val HIVEMQ_EXTENSION_TEST_FOLDER_NAME = "hivemq-extension-test"
     }
 
     override fun apply(project: Project) {
@@ -65,6 +72,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val resourcesTask = registerResourcesTask(project, extension)
         val zipTask = registerZipTask(project, jarTask, resourcesTask, TASK_PREFIX)
         registerRunHivemqWithExtensionTask(project, zipTask)
+        setupIntegrationTest(project, zipTask)
 
         registerCustomZipTask(project, extension, resourcesTask)
     }
@@ -306,6 +314,43 @@ class HivemqExtensionPlugin : Plugin<Project> {
                 }
             }
         }
+    }
+
+    fun setupIntegrationTest(project: Project, zipTask: TaskProvider<Zip>) {
+        val sourceSets = project.the<JavaPluginConvention>().sourceSets
+        val mainSourceSet = sourceSets[SourceSet.MAIN_SOURCE_SET_NAME]
+        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME) {
+            compileClasspath += mainSourceSet.output
+            runtimeClasspath += mainSourceSet.output
+        }
+
+        project.configurations.named(integrationTestSourceSet.implementationConfigurationName) {
+            extendsFrom(project.configurations[mainSourceSet.implementationConfigurationName])
+        }
+        project.configurations.named(integrationTestSourceSet.runtimeOnlyConfigurationName) {
+            extendsFrom(project.configurations[mainSourceSet.runtimeOnlyConfigurationName])
+        }
+
+        val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
+            group = GROUP_NAME
+            description = "Prepares the HiveMQ extension for integration testing."
+
+            hivemqExtensionZip.set(zipTask)
+            from(hivemqExtensionZip.map { project.zipTree(it.archiveFile) })
+            into(project.buildDir.resolve(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
+        }
+
+        val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_TASK_NAME) {
+            group = JavaBasePlugin.VERIFICATION_GROUP
+            description = "Runs integration tests."
+
+            testClassesDirs = integrationTestSourceSet.output.classesDirs
+            classpath = integrationTestSourceSet.runtimeClasspath
+            shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
+            dependsOn(prepareTask)
+        }
+
+        project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
     }
 
     private fun registerCustomZipTask(
