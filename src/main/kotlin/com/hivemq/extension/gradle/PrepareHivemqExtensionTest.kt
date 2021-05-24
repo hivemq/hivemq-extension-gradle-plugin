@@ -15,10 +15,9 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.bundling.Zip
-import org.gradle.kotlin.dsl.property
 
 /**
  * @author Silvio Giebl
@@ -26,5 +25,12 @@ import org.gradle.kotlin.dsl.property
 open class PrepareHivemqExtensionTest : Sync() {
 
     @Internal
-    val hivemqExtensionZip = project.objects.property<Zip>()
+    val hivemqExtensionZip = project.objects.fileProperty()
+
+    @Internal
+    val hivemqExtensionZipCopySpec = mainSpec.addChild().from(hivemqExtensionZip.map { project.zipTree(it) })
+
+    init {
+        mainSpec.duplicatesStrategy = DuplicatesStrategy.WARN
+    }
 }

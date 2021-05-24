@@ -78,9 +78,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun configureJava(project: Project) {
-        if (!project.plugins.hasPlugin("java")) {
-            project.plugins.apply(JavaPlugin::class)
-        }
+        project.plugins.apply(JavaPlugin::class)
 
         project.extensions.configure<JavaPluginExtension> {
             if (GradleVersion.current() >= GradleVersion.version("6.7")) {
@@ -335,8 +333,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Prepares the HiveMQ extension for integration testing."
 
-            hivemqExtensionZip.set(zipTask)
-            from(hivemqExtensionZip.map { project.zipTree(it.archiveFile) })
+            hivemqExtensionZip.set(zipTask.flatMap { it.archiveFile })
             into(project.buildDir.resolve(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
         }
 
