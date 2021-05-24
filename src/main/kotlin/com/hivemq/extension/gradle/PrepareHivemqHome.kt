@@ -15,8 +15,11 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.GradleException
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.property
 
@@ -26,19 +29,40 @@ import org.gradle.kotlin.dsl.property
 open class PrepareHivemqHome : Sync() {
 
     /**
-     * Specifies the path to an HiveMQ directory (unzipped).
-     * The contents are copied to <code>build/hivemq-home</code> which is used by the
-     * <code>runHivemqWithExtension</code> task as the hivemq home folder.
+     * Specifies the path to a HiveMQ directory (unzipped).
+     * The contents are copied to `build/hivemq-home` which is used by the `runHivemqWithExtension` task as the hivemq
+     * home folder.
      *
      * Can be any type allowed by [org.gradle.api.Project.file].
      */
     @Internal
     val hivemqFolder = project.objects.property<Any>()
 
+    @Internal
+    val hivemqFolderCopySpec = mainSpec.addChild().from(hivemqFolder)
+
     /**
      * Specifies the [Zip] task that builds the current HiveMQ extension zip archive.
-     * The contents are unzipped to <code>build/hivemq-home/extensions</code>.
+     * The contents are unzipped to `build/hivemq-home/extensions`.
      */
     @Internal
     val extensionZipTask = project.objects.property<Zip>()
+
+    @Internal
+    val extensionZipCopySpec =
+        mainSpec.addChild().from(extensionZipTask.map { zip -> project.zipTree(zip.archiveFile) }) {
+            into(HivemqExtensionPlugin.EXTENSIONS_FOLDER_NAME)
+        }
+
+    init {
+        mainSpec.duplicatesStrategy = DuplicatesStrategy.WARN
+    }
+
+    @TaskAction
+    override fun copy() {
+        if (!project.file(hivemqFolder.get()).exists()) {
+            throw GradleException("hivemqFolder ${hivemqFolder.get()} does not exist")
+        }
+        super.copy()
+    }
 }

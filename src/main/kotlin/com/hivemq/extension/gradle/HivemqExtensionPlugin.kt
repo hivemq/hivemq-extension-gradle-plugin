@@ -19,7 +19,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -300,17 +299,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
             description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
 
             extensionZipTask.set(zipTask)
-
-            from(hivemqFolder) { exclude("$EXTENSIONS_FOLDER_NAME/${project.name}") }
-            from(extensionZipTask.map { zip -> project.zipTree(zip.archiveFile) }) { into(EXTENSIONS_FOLDER_NAME) }
+            hivemqFolderCopySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
             into(project.buildDir.resolve(HOME_FOLDER_NAME))
-            duplicatesStrategy = DuplicatesStrategy.WARN
-
-            doFirst {
-                if (!project.file(hivemqFolder.get()).exists()) {
-                    throw GradleException("hivemqFolder ${hivemqFolder.get()} does not exist")
-                }
-            }
         }
     }
 
