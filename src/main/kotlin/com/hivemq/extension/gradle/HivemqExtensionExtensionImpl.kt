@@ -15,15 +15,19 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.model.ObjectFactory
+import org.gradle.kotlin.dsl.property
+import javax.inject.Inject
+
 /**
  * @author Lukas Brand, Silvio Giebl
  */
-open class HivemqExtensionExtensionImpl : HivemqExtensionExtension {
-    override var name: String? = null
-    override var author: String? = null
-    override var priority: Int = 0
-    override var startPriority: Int = 1000
-    override var mainClass: String? = null
-    override var sdkVersion: String = "latest.integration"
+open class HivemqExtensionExtensionImpl @Inject constructor(objectFactory: ObjectFactory) : HivemqExtensionExtension {
+    override val name = objectFactory.property<String>()
+    override val author = objectFactory.property<String>()
+    override val priority = objectFactory.property<Int>().convention(0)
+    override val startPriority = objectFactory.property<Int>().convention(1000)
+    override val mainClass = objectFactory.property<String>()
+    override val sdkVersion = objectFactory.property<String>().convention("latest.integration")
     override var customJarTask: Any? = null
 }

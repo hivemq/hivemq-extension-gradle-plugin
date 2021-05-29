@@ -15,6 +15,8 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.provider.Property
+
 /**
  * Gradle extension for configuring the HiveMQ extension build.
  *
@@ -25,32 +27,32 @@ interface HivemqExtensionExtension {
     /**
      * Name of the HiveMQ extension, required
      */
-    var name: String?
+    val name: Property<String>
 
     /**
      * Author of the HiveMQ extension, required
      */
-    var author: String?
+    val author: Property<String>
 
     /**
      * Priority of the HiveMQ extension, default: 0
      */
-    var priority: Int
+    val priority: Property<Int>
 
     /**
      * Start priority of the HiveMQ extension, default: 1000
      */
-    var startPriority: Int
+    val startPriority: Property<Int>
 
     /**
      * Main class of the HiveMQ extension, will be determined automatically if not set
      */
-    var mainClass: String?
+    val mainClass: Property<String>
 
     /**
      * Version of the HiveMQ extension SDK, recommended to specify, default: latest.integration
      */
-    var sdkVersion: String
+    val sdkVersion: Property<String>
 
     /**
      * Add a jar task to do something in between shadowing and zipping (i.e. proguard).

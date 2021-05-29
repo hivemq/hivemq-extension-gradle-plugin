@@ -16,14 +16,20 @@
 package com.hivemq.extension.gradle
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.api.*
+import org.gradle.api.GradleException
+import org.gradle.api.JavaVersion
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
@@ -46,14 +52,11 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val RESOURCES_FOLDER_PATH: String = "src/hivemq-extension"
         const val ZIP_SUFFIX: String = "zip"
         const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
-        const val EXTENSION_MAIN_CLASS_NAME: String = "com.hivemq.extension.sdk.api.ExtensionMain"
         const val XML_SUFFIX: String = "xml"
-        const val EXTENSION_XML_NAME: String = "hivemq-extension.xml"
         const val PROVIDED_CONFIGURATION_NAME: String = "hivemqProvided"
 
         const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
         const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
-        const val HIVEMQ_HOME_PROPERTY_NAME: String = "hivemq.home"
         const val HOME_FOLDER_NAME: String = "hivemq-home"
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"
 
@@ -90,20 +93,23 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun createExtension(project: Project): HivemqExtensionExtension {
-        return project.extensions.create(
+        val extension = project.extensions.create(
             HivemqExtensionExtension::class,
             EXTENSION_NAME,
             HivemqExtensionExtensionImpl::class
         )
+        val lazyMainClass = lazy { findMainClass(project) }
+        extension.mainClass.convention(project.provider { lazyMainClass.value })
+        return extension
     }
 
-    fun addConfiguration(project: Project): NamedDomainObjectProvider<Configuration> {
-        val providedConfiguration = project.configurations.register(PROVIDED_CONFIGURATION_NAME) {
+    fun addConfiguration(project: Project): Configuration {
+        val providedConfiguration = project.configurations.create(PROVIDED_CONFIGURATION_NAME) {
             isCanBeResolved = true
             isCanBeConsumed = false
         }
         project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
-            extendsFrom(providedConfiguration.get())
+            extendsFrom(providedConfiguration)
         }
         return providedConfiguration
     }
@@ -115,11 +121,11 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     private fun addDependencies(project: Project, extension: HivemqExtensionExtension) {
-        addConfiguration(project)
+        addConfiguration(project).withDependencies {
+            add(project.dependencies.create("com.hivemq:hivemq-extension-sdk:${extension.sdkVersion.get()}"))
+        }
         project.afterEvaluate {
             addRepositories(project)
-            val sdkDependency = "com.hivemq:hivemq-extension-sdk:${extension.sdkVersion}"
-            project.dependencies.add(PROVIDED_CONFIGURATION_NAME, sdkDependency)
         }
     }
 
@@ -133,7 +139,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Assembles the jar archive of the HiveMQ extension"
 
-            destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
+            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
 
             manifest.inheritFrom(project.tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).get().manifest)
             from(project.the<JavaPluginConvention>().sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].output)
@@ -158,27 +164,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
     private fun registerServiceDescriptorTask(
         project: Project,
         extension: HivemqExtensionExtension
-    ): TaskProvider<Task> {
+    ): TaskProvider<HivemqExtensionServiceDescriptor> {
 
-        return project.tasks.register(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
+        return project.tasks.register<HivemqExtensionServiceDescriptor>(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Generates the service descriptor of the HiveMQ extension"
 
-            inputs.property("mainClass", { extension.mainClass ?: "" })
-
-            val descriptorFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_MAIN_CLASS_NAME)
-            outputs.file(descriptorFile)
-            outputs.upToDateWhen { extension.mainClass != null }
-
-            doLast {
-                if (extension.mainClass == null) {
-                    extension.mainClass = findMainClass(project)
-                }
-                val mainClass = extension.mainClass ?: throw GradleException("$EXTENSION_NAME: mainClass is missing.")
-
-                descriptorFile.parentFile.mkdirs()
-                descriptorFile.writeText(mainClass)
-            }
+            mainClass.set(extension.mainClass)
+            outputDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
     }
 
@@ -209,40 +202,20 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    private fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<Task> {
-        return project.tasks.register(TASK_PREFIX + XML_SUFFIX.capitalize()) {
+    private fun registerXmlTask(
+        project: Project,
+        extension: HivemqExtensionExtension
+    ): TaskProvider<HivemqExtensionXml> {
+
+        return project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension"
 
-            inputs.property("id", { project.name })
-            inputs.property("version", { project.version })
-            inputs.property("name", { extension.name })
-            inputs.property("author", { extension.author })
-            inputs.property("priority", { extension.priority })
-            inputs.property("start-priority", { extension.startPriority })
-
-            val xmlFile = project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(EXTENSION_XML_NAME)
-            outputs.file(xmlFile)
-
-            doLast {
-                val name = extension.name ?: throw GradleException("$EXTENSION_NAME: name is missing.")
-                val author = extension.author ?: throw GradleException("$EXTENSION_NAME: author is missing.")
-
-                xmlFile.parentFile.mkdirs()
-                xmlFile.writeText(
-                    """
-                        <?xml version="1.0" encoding="UTF-8" ?>
-                        <hivemq-extension>
-                            <id>${project.name}</id>
-                            <version>${project.version}</version>
-                            <name>$name</name>
-                            <author>$author</author>
-                            <priority>${extension.priority}</priority>
-                            <start-priority>${extension.startPriority}</start-priority>
-                        </hivemq-extension>
-                    """.trimIndent()
-                )
-            }
+            name.set(extension.name)
+            author.set(extension.author)
+            priority.set(extension.priority)
+            startPriority.set(extension.startPriority)
+            outputDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
     }
 
@@ -260,7 +233,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             description = "Assembles the zip distribution of the HiveMQ extension" +
                     if (specialName.isEmpty()) "" else " containing the ${specialName.decapitalize()} jar"
 
-            destinationDirectory.set(project.buildDir.resolve(BUILD_FOLDER_NAME))
+            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
             archiveClassifier.set(specialName.toLowerCase())
 
             from(jarTask) { rename { "${project.name}-${project.version}.jar" } }
@@ -269,23 +242,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerRunHivemqWithExtensionTask(project: Project, zipTask: TaskProvider<Zip>): TaskProvider<JavaExec> {
+    fun registerRunHivemqWithExtensionTask(project: Project, zipTask: TaskProvider<Zip>): TaskProvider<RunHivemq> {
         val prepareHivemqHomeTask = registerPrepareHivemqHomeTask(project, zipTask)
 
-        return project.tasks.register<JavaExec>(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME) {
+        return project.tasks.register<RunHivemq>(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME) {
             group = GROUP_NAME
             description = "Runs HiveMQ with the extension"
 
-            dependsOn(prepareHivemqHomeTask)
-            val hivemqHome = prepareHivemqHomeTask.get().destinationDir.path
-            classpath("$hivemqHome/bin/hivemq.jar")
-            systemProperty(HIVEMQ_HOME_PROPERTY_NAME, hivemqHome)
-            jvmArgs("-Djava.net.preferIPv4Stack=true", "-noverify")
-            jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.base/java.nio=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED")
-            jvmArgs("--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED")
-            jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+            hivemqHomeFolder.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
         }
     }
 
@@ -298,9 +262,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
 
-            extensionZipTask.set(zipTask)
+            extensionZip.set(zipTask)
             hivemqFolderCopySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
-            into(project.buildDir.resolve(HOME_FOLDER_NAME))
+            into(project.layout.buildDirectory.dir(HOME_FOLDER_NAME))
         }
     }
 
@@ -324,7 +288,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             description = "Prepares the HiveMQ extension for integration testing."
 
             hivemqExtensionZip.set(zipTask.flatMap { it.archiveFile })
-            into(project.buildDir.resolve(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
+            into(project.layout.buildDirectory.dir(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
         }
 
         val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_TASK_NAME) {
