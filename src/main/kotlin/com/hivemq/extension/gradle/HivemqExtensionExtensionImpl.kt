@@ -36,7 +36,6 @@ open class HivemqExtensionExtensionImpl @Inject constructor(
     override val startPriority = objectFactory.property<Int>().convention(1000)
     override val mainClass = objectFactory.property<String>()
     override val sdkVersion = objectFactory.property<String>().convention("latest.integration")
-    override var customJarTask: Any? = null
     final override val resources = copySpecFactory.invoke()
 
     init {

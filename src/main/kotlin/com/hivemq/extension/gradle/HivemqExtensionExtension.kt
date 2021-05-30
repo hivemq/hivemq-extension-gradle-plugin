@@ -56,13 +56,6 @@ interface HivemqExtensionExtension {
      */
     val sdkVersion: Property<String>
 
-    /**
-     * Add a jar task to do something in between shadowing and zipping (i.e. proguard).
-     * The task must produce exactly one jar file as output.
-     * The task can be provided as [TaskProvider][org.gradle.api.tasks.TaskProvider] or [String].
-     */
-    var customJarTask: Any?
-
     val resources: CopySpec
 
     fun resources(action: Action<CopySpec>)

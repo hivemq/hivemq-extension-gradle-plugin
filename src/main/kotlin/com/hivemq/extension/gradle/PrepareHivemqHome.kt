@@ -39,23 +39,22 @@ open class PrepareHivemqHome : Sync() {
     val hivemqFolder = project.objects.property<Any>()
 
     @Internal
-    val hivemqFolderCopySpec = mainSpec.addChild().from(hivemqFolder)
+    val hivemqFolderCopySpec = mainSpec.from(hivemqFolder) {}
 
     /**
      * Specifies the [Zip] task that builds the current HiveMQ extension zip archive.
      * The contents are unzipped to `build/hivemq-home/extensions`.
      */
     @Internal
-    val extensionZip = project.objects.property<Zip>()
+    val extensionZip = project.objects.fileProperty()
 
     @Internal
-    val extensionZipCopySpec =
-        mainSpec.addChild().from(extensionZip.map { zip -> project.zipTree(zip.archiveFile) }) {
-            into(HivemqExtensionPlugin.EXTENSIONS_FOLDER_NAME)
-        }
+    val extensionZipCopySpec = mainSpec.from(extensionZip.map { project.zipTree(it) }) {
+        into(HivemqExtensionPlugin.EXTENSIONS_FOLDER_NAME)
+    }
 
     init {
-        mainSpec.duplicatesStrategy = DuplicatesStrategy.WARN
+        duplicatesStrategy = DuplicatesStrategy.WARN
     }
 
     @TaskAction

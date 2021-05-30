@@ -28,9 +28,9 @@ open class PrepareHivemqExtensionTest : Sync() {
     val hivemqExtensionZip = project.objects.fileProperty()
 
     @Internal
-    val hivemqExtensionZipCopySpec = mainSpec.addChild().from(hivemqExtensionZip.map { project.zipTree(it) })
+    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {}
 
     init {
-        mainSpec.duplicatesStrategy = DuplicatesStrategy.WARN
+        duplicatesStrategy = DuplicatesStrategy.WARN
     }
 }
