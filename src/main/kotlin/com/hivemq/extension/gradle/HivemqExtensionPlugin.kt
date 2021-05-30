@@ -96,7 +96,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             HivemqExtensionExtension::class,
             EXTENSION_NAME,
             HivemqExtensionExtensionImpl::class,
-            project.copySpec()
+            { project.copySpec() }
         )
 
         val lazyMainClass = lazy { findMainClass(project) }

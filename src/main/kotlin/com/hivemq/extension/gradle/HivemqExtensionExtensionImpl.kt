@@ -27,7 +27,7 @@ import javax.inject.Inject
  */
 open class HivemqExtensionExtensionImpl @Inject constructor(
     objectFactory: ObjectFactory,
-    final override val resources: CopySpec
+    copySpecFactory: () -> CopySpec
 ) : HivemqExtensionExtension {
 
     override val name = objectFactory.property<String>()
@@ -37,6 +37,7 @@ open class HivemqExtensionExtensionImpl @Inject constructor(
     override val mainClass = objectFactory.property<String>()
     override val sdkVersion = objectFactory.property<String>().convention("latest.integration")
     override var customJarTask: Any? = null
+    final override val resources = copySpecFactory.invoke()
 
     init {
         resources.from("src/hivemq-extension")
