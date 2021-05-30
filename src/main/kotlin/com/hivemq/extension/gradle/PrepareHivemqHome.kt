@@ -28,6 +28,13 @@ import org.gradle.kotlin.dsl.property
  */
 open class PrepareHivemqHome : Sync() {
 
+    companion object {
+        const val EXTENSIONS_FOLDER_NAME: String = "extensions"
+    }
+
+    @Internal
+    val extensionId = project.objects.property<String>().convention(project.name)
+
     /**
      * Specifies the path to a HiveMQ directory (unzipped).
      * The contents are copied to `build/hivemq-home` which is used by the `runHivemqWithExtension` task as the hivemq
@@ -39,7 +46,9 @@ open class PrepareHivemqHome : Sync() {
     val hivemqFolder = project.objects.property<Any>()
 
     @Internal
-    val hivemqFolderCopySpec = mainSpec.from(hivemqFolder) {}
+    val hivemqFolderCopySpec = mainSpec.from(hivemqFolder) {
+        exclude { it.path == "$EXTENSIONS_FOLDER_NAME/${extensionId.get()}" }
+    }
 
     /**
      * Specifies the [Zip] task that builds the current HiveMQ extension zip archive.
@@ -50,7 +59,7 @@ open class PrepareHivemqHome : Sync() {
 
     @Internal
     val extensionZipCopySpec = mainSpec.from(extensionZip.map { project.zipTree(it) }) {
-        into(HivemqExtensionPlugin.EXTENSIONS_FOLDER_NAME)
+        into(EXTENSIONS_FOLDER_NAME)
     }
 
     init {

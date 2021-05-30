@@ -55,7 +55,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
         const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
         const val HOME_FOLDER_NAME: String = "hivemq-home"
-        const val EXTENSIONS_FOLDER_NAME: String = "extensions"
 
         const val INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest"
         const val INTEGRATION_TEST_TASK_NAME = "integrationTest"
@@ -232,7 +231,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
 
-            hivemqFolderCopySpec.exclude("$EXTENSIONS_FOLDER_NAME/${project.name}")
             extensionZip.set(zipProvider)
             into(project.layout.buildDirectory.dir(HOME_FOLDER_NAME))
         }
