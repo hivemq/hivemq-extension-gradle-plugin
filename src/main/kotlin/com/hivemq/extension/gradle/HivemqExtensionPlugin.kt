@@ -22,13 +22,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.testing.Test
@@ -48,8 +48,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val BUILD_FOLDER_NAME: String = "hivemq-extension"
         const val TASK_PREFIX: String = "hivemqExtension"
         const val JAR_SUFFIX: String = "jar"
-        const val RESOURCES_SUFFIX: String = "resources"
-        const val RESOURCES_FOLDER_PATH: String = "src/hivemq-extension"
         const val ZIP_SUFFIX: String = "zip"
         const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
         const val XML_SUFFIX: String = "xml"
@@ -71,12 +69,13 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val extension = createExtension(project)
         addDependencies(project, extension)
         val jarTask = registerJarTask(project, extension)
-        val resourcesTask = registerResourcesTask(project, extension)
-        val zipTask = registerZipTask(project, jarTask, resourcesTask, TASK_PREFIX)
+        registerXmlTask(project, extension)
+        val zipTask = registerZipTask(project, extension, jarTask, TASK_PREFIX)
+
         registerRunHivemqWithExtensionTask(project, zipTask)
         setupIntegrationTest(project, zipTask)
 
-        registerCustomZipTask(project, extension, resourcesTask)
+        registerCustomZipTask(project, extension)
     }
 
     fun configureJava(project: Project) {
@@ -96,10 +95,13 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val extension = project.extensions.create(
             HivemqExtensionExtension::class,
             EXTENSION_NAME,
-            HivemqExtensionExtensionImpl::class
+            HivemqExtensionExtensionImpl::class,
+            project.copySpec()
         )
+
         val lazyMainClass = lazy { findMainClass(project) }
         extension.mainClass.convention(project.provider { lazyMainClass.value })
+
         return extension
     }
 
@@ -189,25 +191,12 @@ class HivemqExtensionPlugin : Plugin<Project> {
         return mainClass
     }
 
-    fun registerResourcesTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<Sync> {
-        val xmlTask = registerXmlTask(project, extension)
-
-        return project.tasks.register<Sync>(TASK_PREFIX + RESOURCES_SUFFIX.capitalize()) {
-            group = GROUP_NAME
-            description = "Collects the resources of the HiveMQ extension"
-
-            from(xmlTask)
-            from(RESOURCES_FOLDER_PATH)
-            into(project.buildDir.resolve(BUILD_FOLDER_NAME).resolve(RESOURCES_SUFFIX))
-        }
-    }
-
-    private fun registerXmlTask(
+    fun registerXmlTask(
         project: Project,
         extension: HivemqExtensionExtension
     ): TaskProvider<HivemqExtensionXml> {
 
-        return project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
+        val xmlTask = project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension"
 
@@ -217,12 +206,16 @@ class HivemqExtensionPlugin : Plugin<Project> {
             startPriority.set(extension.startPriority)
             outputDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
+
+        extension.resources.from(xmlTask)
+
+        return xmlTask
     }
 
     fun registerZipTask(
         project: Project,
+        extension: HivemqExtensionExtension,
         jarTask: TaskProvider<*>,
-        resourcesTask: TaskProvider<Sync>,
         taskPrefix: String
     ): TaskProvider<Zip> {
 
@@ -237,8 +230,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
             archiveClassifier.set(specialName.toLowerCase())
 
             from(jarTask) { rename { "${project.name}-${project.version}.jar" } }
-            from(resourcesTask)
+            with(extension.resources)
             into(project.name)
+            duplicatesStrategy = DuplicatesStrategy.WARN
         }
     }
 
@@ -304,11 +298,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
     }
 
-    private fun registerCustomZipTask(
-        project: Project,
-        extension: HivemqExtensionExtension,
-        resourcesTask: TaskProvider<Sync>
-    ) {
+    private fun registerCustomZipTask(project: Project, extension: HivemqExtensionExtension) {
         project.afterEvaluate {
             val customJarTaskAny = extension.customJarTask
             if (customJarTaskAny != null) {
@@ -317,7 +307,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
                     is String -> project.tasks.named(customJarTaskAny)
                     else -> throw GradleException("The custom jar task must either be a TaskProvider or String.")
                 }
-                registerZipTask(project, customJarTask, resourcesTask, TASK_PREFIX)
+                registerZipTask(project, extension, customJarTask, TASK_PREFIX)
             }
         }
     }

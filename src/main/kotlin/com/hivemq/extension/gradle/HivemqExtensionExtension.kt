@@ -15,6 +15,8 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.Action
+import org.gradle.api.file.CopySpec
 import org.gradle.api.provider.Property
 
 /**
@@ -60,4 +62,8 @@ interface HivemqExtensionExtension {
      * The task can be provided as [TaskProvider][org.gradle.api.tasks.TaskProvider] or [String].
      */
     var customJarTask: Any?
+
+    val resources: CopySpec
+
+    fun resources(action: Action<CopySpec>)
 }
