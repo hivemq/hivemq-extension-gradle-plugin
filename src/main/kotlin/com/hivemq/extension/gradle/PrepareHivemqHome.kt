@@ -55,10 +55,10 @@ open class PrepareHivemqHome : Sync() {
      * The contents are unzipped to `build/hivemq-home/extensions`.
      */
     @Internal
-    val extensionZip = project.objects.fileProperty()
+    val hivemqExtensionZip = project.objects.fileProperty()
 
     @Internal
-    val extensionZipCopySpec = mainSpec.from(extensionZip.map { project.zipTree(it) }) {
+    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {
         into(EXTENSIONS_FOLDER_NAME)
     }
 

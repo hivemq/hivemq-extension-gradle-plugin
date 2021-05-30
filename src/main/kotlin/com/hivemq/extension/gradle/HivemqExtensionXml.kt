@@ -35,10 +35,10 @@ open class HivemqExtensionXml : DefaultTask() {
     val startPriority = project.objects.property<Int>()
 
     @Internal
-    val outputDirectory = project.objects.directoryProperty()
+    val destinationDirectory = project.objects.directoryProperty()
 
     @OutputFile
-    val xmlFile = outputDirectory.file(EXTENSION_XML_NAME)
+    val xmlFile = destinationDirectory.file(EXTENSION_XML_NAME)
 
     @TaskAction
     protected fun run() {

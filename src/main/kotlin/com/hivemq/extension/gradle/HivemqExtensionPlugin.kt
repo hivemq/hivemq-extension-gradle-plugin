@@ -169,7 +169,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             description = "Generates the service descriptor of the HiveMQ extension"
 
             mainClass.set(extension.mainClass)
-            outputDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
+            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
     }
 
@@ -200,7 +200,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             author.set(extension.author)
             priority.set(extension.priority)
             startPriority.set(extension.startPriority)
-            outputDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
+            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }.also {
             extension.resources.from(it)
         }
@@ -231,7 +231,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
 
-            extensionZip.set(zipProvider)
+            hivemqExtensionZip.set(zipProvider)
             into(project.layout.buildDirectory.dir(HOME_FOLDER_NAME))
         }
 

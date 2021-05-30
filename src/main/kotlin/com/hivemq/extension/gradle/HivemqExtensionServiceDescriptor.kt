@@ -20,10 +20,10 @@ open class HivemqExtensionServiceDescriptor : DefaultTask() {
     val mainClass = project.objects.property<String>()
 
     @Internal
-    val outputDirectory = project.objects.directoryProperty()
+    val destinationDirectory = project.objects.directoryProperty()
 
     @OutputFile
-    val serviceDescriptorFile = outputDirectory.file(EXTENSION_MAIN_CLASS_NAME)
+    val serviceDescriptorFile = destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME)
 
     @TaskAction
     protected fun run() {
