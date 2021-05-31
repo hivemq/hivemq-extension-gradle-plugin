@@ -15,11 +15,9 @@
  */
 package com.hivemq.extension.gradle
 
-import org.gradle.api.GradleException
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.property
 
@@ -33,7 +31,7 @@ open class PrepareHivemqHome : Sync() {
     }
 
     @Internal
-    val extensionId = project.objects.property<String>().convention(project.name)
+    val hivemqExtensionId = project.objects.property<String>().convention(project.name)
 
     /**
      * Specifies the path to a HiveMQ directory (unzipped).
@@ -43,11 +41,11 @@ open class PrepareHivemqHome : Sync() {
      * Can be any type allowed by [org.gradle.api.Project.file].
      */
     @Internal
-    val hivemqFolder = project.objects.property<Any>()
+    val hivemqHomeDirectory = project.objects.directoryProperty()
 
     @Internal
-    val hivemqFolderCopySpec = mainSpec.from(hivemqFolder) {
-        exclude { it.path == "$EXTENSIONS_FOLDER_NAME/${extensionId.get()}" }
+    val hivemqHomeDirectoryCopySpec = mainSpec.from(hivemqHomeDirectory) {
+        exclude { it.path == "$EXTENSIONS_FOLDER_NAME/${hivemqExtensionId.get()}" }
     }
 
     /**
@@ -64,13 +62,5 @@ open class PrepareHivemqHome : Sync() {
 
     init {
         duplicatesStrategy = DuplicatesStrategy.WARN
-    }
-
-    @TaskAction
-    override fun copy() {
-        if (!project.file(hivemqFolder.get()).exists()) {
-            throw GradleException("hivemqFolder ${hivemqFolder.get()} does not exist")
-        }
-        super.copy()
     }
 }

@@ -239,7 +239,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = GROUP_NAME
             description = "Runs HiveMQ with the extension"
 
-            hivemqHomeFolder.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
+            hivemqHomeDirectory.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
         }
     }
 

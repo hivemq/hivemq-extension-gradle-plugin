@@ -11,11 +11,11 @@ import org.gradle.api.tasks.JavaExec
 open class RunHivemq : JavaExec() {
 
     @Internal
-    val hivemqHomeFolder = project.objects.directoryProperty()
+    val hivemqHomeDirectory = project.objects.directoryProperty()
 
     init {
-        classpath(hivemqHomeFolder.file("bin/hivemq.jar"))
-        systemProperty("hivemq.home", ToStringProvider(hivemqHomeFolder.map { it.asFile.absolutePath }))
+        classpath(hivemqHomeDirectory.file("bin/hivemq.jar"))
+        systemProperty("hivemq.home", ToStringProvider(hivemqHomeDirectory.map { it.asFile.absolutePath }))
         jvmArgs(
             "-Djava.net.preferIPv4Stack=true",
             "-noverify",
