@@ -68,7 +68,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         addDependencies(project, extension)
         val jarTask = registerJarTask(project, extension)
         registerXmlTask(project, extension)
-        val zipTask = registerZipTask(project, extension, jarTask.flatMap { it.archiveFile }, TASK_PREFIX)
+        val zipTask = registerZipTask(project, extension, jarTask.flatMap { it.archiveFile })
 
         setupDebugging(project, zipTask.flatMap { it.archiveFile })
         setupIntegrationTesting(project, zipTask.flatMap { it.archiveFile })
@@ -127,16 +127,22 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
     }
 
-    fun registerJarTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<ShadowJar> {
+    fun registerJarTask(
+        project: Project,
+        extension: HivemqExtensionExtension,
+        classifier: String = ""
+    ): TaskProvider<ShadowJar> {
+
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
         project.tasks.named<Copy>(JavaPlugin.PROCESS_RESOURCES_TASK_NAME) {
             from(serviceDescriptorTask) { into("META-INF/services") }
         }
 
-        return project.tasks.register<ShadowJar>(TASK_PREFIX + JAR_SUFFIX.capitalize()) {
+        return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.capitalize() + JAR_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Assembles the jar archive of the HiveMQ extension"
 
+            archiveClassifier.set(classifier)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
 
             manifest.inheritFrom(project.tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).get().manifest)
@@ -210,11 +216,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project: Project,
         extension: HivemqExtensionExtension,
         jarProvider: Provider<RegularFile>,
-        taskPrefix: String,
         classifier: String = ""
     ): TaskProvider<HivemqExtensionZip> {
 
-        return project.tasks.register<HivemqExtensionZip>(taskPrefix + classifier.capitalize() + ZIP_SUFFIX.capitalize()) {
+        return project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.capitalize() + ZIP_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Assembles the zip distribution of the HiveMQ extension" +
                     if (classifier.isEmpty()) "" else " containing the $classifier jar"
