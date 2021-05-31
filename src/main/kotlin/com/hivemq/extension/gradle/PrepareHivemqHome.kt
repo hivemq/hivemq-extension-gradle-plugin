@@ -18,10 +18,11 @@ package com.hivemq.extension.gradle
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.property
 
 /**
+ * Task that prepares a HiveMQ home directory with a HiveMQ extension for debugging.
+ *
  * @author Silvio Giebl
  */
 open class PrepareHivemqHome : Sync() {
@@ -30,15 +31,17 @@ open class PrepareHivemqHome : Sync() {
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"
     }
 
+    /**
+     * Id of the HiveMQ extension associated with the [hivemqExtensionZip].
+     *
+     * Defaults to the project name. Should not be changed without a specific reason.
+     */
     @Internal
     val hivemqExtensionId = project.objects.property<String>().convention(project.name)
 
     /**
-     * Specifies the path to a HiveMQ directory (unzipped).
-     * The contents are copied to `build/hivemq-home` which is used by the `runHivemqWithExtension` task as the hivemq
-     * home folder.
-     *
-     * Can be any type allowed by [org.gradle.api.Project.file].
+     * HiveMQ home directory (unzipped) used for debugging with the `runHivemqWithExtension` task.
+     * The contents are copied to `build/hivemq-home`.
      */
     @Internal
     val hivemqHomeDirectory = project.objects.directoryProperty()
@@ -49,7 +52,7 @@ open class PrepareHivemqHome : Sync() {
     }
 
     /**
-     * Specifies the [Zip] task that builds the current HiveMQ extension zip archive.
+     * HiveMQ extension zip archive used for debugging with the `runHivemqWithExtension` task.
      * The contents are unzipped to `build/hivemq-home/extensions`.
      */
     @Internal

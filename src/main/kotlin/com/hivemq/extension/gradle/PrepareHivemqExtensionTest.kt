@@ -20,10 +20,16 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 
 /**
+ * Task that prepares a HiveMQ extension for integration testing.
+ *
  * @author Silvio Giebl
  */
 open class PrepareHivemqExtensionTest : Sync() {
 
+    /**
+     * HiveMQ extension zip archive used for integration testing.
+     * The contents are unzipped to `build/hivemq-extension-test`.
+     */
     @Internal
     val hivemqExtensionZip = project.objects.fileProperty()
 

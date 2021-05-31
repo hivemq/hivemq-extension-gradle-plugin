@@ -56,7 +56,13 @@ interface HivemqExtensionExtension {
      */
     val sdkVersion: Property<String>
 
+    /**
+     * Resources of the HiveMQ extension.
+     */
     val resources: CopySpec
 
+    /**
+     * Configures the [resources].
+     */
     fun resources(action: Action<CopySpec>)
 }

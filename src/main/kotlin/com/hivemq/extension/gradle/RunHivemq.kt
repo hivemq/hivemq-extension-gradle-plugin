@@ -5,11 +5,16 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 
 /**
+ * Runs HiveMQ.
+ *
  * @author Silvio Giebl
  */
 @Suppress("LeakingThis")
 open class RunHivemq : JavaExec() {
 
+    /**
+     * HiveMQ home directory (unzipped).
+     */
     @Internal
     val hivemqHomeDirectory = project.objects.directoryProperty()
 
