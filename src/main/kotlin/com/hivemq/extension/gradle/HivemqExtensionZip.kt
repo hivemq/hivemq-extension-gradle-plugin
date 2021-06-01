@@ -21,7 +21,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.property
 
 /**
- * Task that builds a HiveMQ extension zip archive.
+ * Task that assembles a HiveMQ extension zip distribution.
  *
  * @author Silvio Giebl
  */

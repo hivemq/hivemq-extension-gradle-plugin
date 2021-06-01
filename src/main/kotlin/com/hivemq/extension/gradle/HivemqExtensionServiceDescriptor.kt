@@ -23,7 +23,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 
 /**
- * Task that builds a HiveMQ extension service descriptor.
+ * Task that generates a HiveMQ extension service descriptor.
  *
  * @author Silvio Giebl
  */
