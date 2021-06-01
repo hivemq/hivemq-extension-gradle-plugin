@@ -1,8 +1,8 @@
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish")
     `maven-publish`
+    id("com.gradle.plugin-publish")
     id("com.github.hierynomus.license")
     id("com.github.sgtsilvio.gradle.metadata")
 }
