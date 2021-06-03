@@ -41,7 +41,7 @@ abstract class HivemqExtensionZip : Zip() {
      * Defaults to the project version. Should not be changed without a specific reason.
      */
     @get:Internal
-    val version = project.objects.property<String>().convention(project.provider { project.version.toString() })
+    val version = project.objects.property<String>().convention(project.versionProvider)
 
     /**
      * Jar of the HiveMQ extension.

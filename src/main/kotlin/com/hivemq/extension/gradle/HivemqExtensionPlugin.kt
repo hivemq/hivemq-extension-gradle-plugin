@@ -95,8 +95,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             { project.copySpec() }
         )
 
-        val lazyMainClass = lazy { findMainClass(project) }
-        extension.mainClass.convention(project.provider { lazyMainClass.value })
+        extension.mainClass.convention(project.memoizingProvider { findMainClass(project) })
 
         return extension
     }

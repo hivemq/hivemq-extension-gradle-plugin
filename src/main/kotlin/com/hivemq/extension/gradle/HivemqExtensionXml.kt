@@ -47,7 +47,7 @@ abstract class HivemqExtensionXml : DefaultTask() {
      * Defaults to the project version. Should not be changed without a specific reason.
      */
     @get:Input
-    val version = project.objects.property<String>().convention(project.provider { project.version.toString() })
+    val version = project.objects.property<String>().convention(project.versionProvider)
 
     /**
      * Name of the HiveMQ extension.
