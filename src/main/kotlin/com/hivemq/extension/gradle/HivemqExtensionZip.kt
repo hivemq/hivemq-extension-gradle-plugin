@@ -32,7 +32,7 @@ open class HivemqExtensionZip : Zip() {
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */
-    @Internal
+    @get:Internal
     val id = project.objects.property<String>().convention(project.name)
 
     /**
@@ -40,13 +40,13 @@ open class HivemqExtensionZip : Zip() {
      *
      * Defaults to the project version. Should not be changed without a specific reason.
      */
-    @Internal
+    @get:Internal
     val version = project.objects.property<String>().convention(project.provider { project.version.toString() })
 
     /**
      * Jar of the HiveMQ extension.
      */
-    @Internal
+    @get:Internal
     val jar = project.objects.fileProperty()
 
     init {

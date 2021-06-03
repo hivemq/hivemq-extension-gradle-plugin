@@ -38,7 +38,7 @@ open class HivemqExtensionXml : DefaultTask() {
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */
-    @Input
+    @get:Input
     val id = project.objects.property<String>().convention(project.name)
 
     /**
@@ -46,43 +46,43 @@ open class HivemqExtensionXml : DefaultTask() {
      *
      * Defaults to the project version. Should not be changed without a specific reason.
      */
-    @Input
+    @get:Input
     val version = project.objects.property<String>().convention(project.provider { project.version.toString() })
 
     /**
      * Name of the HiveMQ extension.
      */
-    @Input
+    @get:Input
     val name = project.objects.property<String>()
 
     /**
      * Author of the HiveMQ extension.
      */
-    @Input
+    @get:Input
     val author = project.objects.property<String>()
 
     /**
      * Priority of the HiveMQ extension.
      */
-    @Input
+    @get:Input
     val priority = project.objects.property<Int>()
 
     /**
      * Start priority of the HiveMQ extension.
      */
-    @Input
+    @get:Input
     val startPriority = project.objects.property<Int>()
 
     /**
      * Configurable destination directory of the [xmlFile].
      */
-    @Internal
+    @get:Internal
     val destinationDirectory = project.objects.directoryProperty()
 
     /**
      * Xml descriptor file of the HiveMQ extension.
      */
-    @OutputFile
+    @get:OutputFile
     val xmlFile = destinationDirectory.file(EXTENSION_XML_NAME)
 
     @TaskAction

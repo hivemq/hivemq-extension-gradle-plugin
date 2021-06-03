@@ -36,17 +36,17 @@ open class PrepareHivemqHome : Sync() {
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */
-    @Internal
+    @get:Internal
     val hivemqExtensionId = project.objects.property<String>().convention(project.name)
 
     /**
      * HiveMQ home directory (unzipped) used for debugging with the `runHivemqWithExtension` task.
      * The contents are copied to `build/hivemq-home`.
      */
-    @Internal
+    @get:Internal
     val hivemqHomeDirectory = project.objects.directoryProperty()
 
-    @Internal
+    @get:Internal
     val hivemqHomeDirectoryCopySpec = mainSpec.from(hivemqHomeDirectory) {
         exclude { it.path == "$EXTENSIONS_FOLDER_NAME/${hivemqExtensionId.get()}" }
     }
@@ -55,10 +55,10 @@ open class PrepareHivemqHome : Sync() {
      * HiveMQ extension zip archive used for debugging with the `runHivemqWithExtension` task.
      * The contents are unzipped to `build/hivemq-home/extensions`.
      */
-    @Internal
+    @get:Internal
     val hivemqExtensionZip = project.objects.fileProperty()
 
-    @Internal
+    @get:Internal
     val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {
         into(EXTENSIONS_FOLDER_NAME)
     }

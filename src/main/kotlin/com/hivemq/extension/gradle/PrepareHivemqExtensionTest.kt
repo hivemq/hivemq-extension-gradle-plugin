@@ -30,10 +30,10 @@ open class PrepareHivemqExtensionTest : Sync() {
      * HiveMQ extension zip archive used for integration testing.
      * The contents are unzipped to `build/hivemq-extension-test`.
      */
-    @Internal
+    @get:Internal
     val hivemqExtensionZip = project.objects.fileProperty()
 
-    @Internal
+    @get:Internal
     val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {}
 
     init {

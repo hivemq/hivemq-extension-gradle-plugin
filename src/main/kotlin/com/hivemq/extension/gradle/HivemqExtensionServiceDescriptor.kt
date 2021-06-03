@@ -36,19 +36,19 @@ open class HivemqExtensionServiceDescriptor : DefaultTask() {
     /**
      * Main class of the HiveMQ extension.
      */
-    @Input
+    @get:Input
     val mainClass = project.objects.property<String>()
 
     /**
      * Configurable destination directory of the [serviceDescriptorFile].
      */
-    @Internal
+    @get:Internal
     val destinationDirectory = project.objects.directoryProperty()
 
     /**
      * Service descriptor file of the HiveMQ extension.
      */
-    @OutputFile
+    @get:OutputFile
     val serviceDescriptorFile = destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME)
 
     @TaskAction

@@ -30,7 +30,7 @@ open class RunHivemq : JavaExec() {
     /**
      * HiveMQ home directory (unzipped).
      */
-    @Internal
+    @get:Internal
     val hivemqHomeDirectory = project.objects.directoryProperty()
 
     init {
