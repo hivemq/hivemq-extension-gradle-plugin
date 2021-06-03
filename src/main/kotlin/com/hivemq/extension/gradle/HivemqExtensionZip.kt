@@ -25,7 +25,7 @@ import org.gradle.kotlin.dsl.property
  *
  * @author Silvio Giebl
  */
-open class HivemqExtensionZip : Zip() {
+abstract class HivemqExtensionZip : Zip() {
 
     /**
      * Id of the HiveMQ extension.

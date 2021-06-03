@@ -25,7 +25,7 @@ import javax.inject.Inject
 /**
  * @author Lukas Brand, Silvio Giebl
  */
-open class HivemqExtensionExtensionImpl @Inject constructor(
+abstract class HivemqExtensionExtensionImpl @Inject constructor(
     objectFactory: ObjectFactory,
     copySpecFactory: () -> CopySpec
 ) : HivemqExtensionExtension {

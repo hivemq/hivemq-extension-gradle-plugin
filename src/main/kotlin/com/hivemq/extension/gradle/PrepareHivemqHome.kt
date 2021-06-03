@@ -25,7 +25,7 @@ import org.gradle.kotlin.dsl.property
  *
  * @author Silvio Giebl
  */
-open class PrepareHivemqHome : Sync() {
+abstract class PrepareHivemqHome : Sync() {
 
     companion object {
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"

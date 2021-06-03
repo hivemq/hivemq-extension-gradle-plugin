@@ -24,7 +24,7 @@ import org.gradle.api.tasks.Sync
  *
  * @author Silvio Giebl
  */
-open class PrepareHivemqExtensionTest : Sync() {
+abstract class PrepareHivemqExtensionTest : Sync() {
 
     /**
      * HiveMQ extension zip archive used for integration testing.

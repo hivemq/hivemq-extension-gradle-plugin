@@ -27,7 +27,7 @@ import org.gradle.kotlin.dsl.property
  *
  * @author Silvio Giebl
  */
-open class HivemqExtensionServiceDescriptor : DefaultTask() {
+abstract class HivemqExtensionServiceDescriptor : DefaultTask() {
 
     companion object {
         const val EXTENSION_MAIN_CLASS_NAME: String = "com.hivemq.extension.sdk.api.ExtensionMain"

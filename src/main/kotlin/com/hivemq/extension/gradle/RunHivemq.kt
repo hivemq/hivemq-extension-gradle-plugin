@@ -25,7 +25,7 @@ import org.gradle.api.tasks.JavaExec
  * @author Silvio Giebl
  */
 @Suppress("LeakingThis")
-open class RunHivemq : JavaExec() {
+abstract class RunHivemq : JavaExec() {
 
     /**
      * HiveMQ home directory (unzipped).
