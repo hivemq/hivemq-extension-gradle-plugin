@@ -20,14 +20,12 @@ metadata {
         apache2()
     }
     developers {
-        developer {
-            id.set("ltb")
-            name.set("Lukas Brand")
+        register("ltb") {
+            fullName.set("Lukas Brand")
             email.set("lukas.brand@hivemq.com")
         }
-        developer {
-            id.set("SgtSilvio")
-            name.set("Silvio Giebl")
+        register("SgtSilvio") {
+            fullName.set("Silvio Giebl")
             email.set("silvio.giebl@hivemq.com")
         }
     }
