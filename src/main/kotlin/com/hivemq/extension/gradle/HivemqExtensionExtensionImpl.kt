@@ -43,7 +43,7 @@ abstract class HivemqExtensionExtensionImpl @Inject constructor(
         resources.duplicatesStrategy = DuplicatesStrategy.WARN
     }
 
-    override fun resources(action: Action<CopySpec>) {
+    override fun resources(action: Action<in CopySpec>) {
         action.execute(resources)
     }
 }

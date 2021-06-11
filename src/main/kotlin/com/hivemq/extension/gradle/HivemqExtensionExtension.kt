@@ -64,5 +64,5 @@ interface HivemqExtensionExtension {
     /**
      * Configures the [resources].
      */
-    fun resources(action: Action<CopySpec>)
+    fun resources(action: Action<in CopySpec>)
 }
