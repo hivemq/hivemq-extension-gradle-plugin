@@ -139,7 +139,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.capitalize() + JAR_SUFFIX.capitalize()) {
             group = GROUP_NAME
-            description = "Assembles the jar archive of the HiveMQ extension"
+            description =
+                "Assembles the ${if (classifier.isEmpty()) "" else "$classifier "}jar of the HiveMQ extension."
 
             archiveClassifier.set(classifier)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
@@ -171,7 +172,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         return project.tasks.register<HivemqExtensionServiceDescriptor>(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
             group = GROUP_NAME
-            description = "Generates the service descriptor of the HiveMQ extension"
+            description = "Generates the service descriptor of the HiveMQ extension."
 
             mainClass.set(extension.mainClass)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
@@ -199,7 +200,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         return project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
             group = GROUP_NAME
-            description = "Generates the xml descriptor of the HiveMQ extension"
+            description = "Generates the xml descriptor of the HiveMQ extension."
 
             name.set(extension.name)
             author.set(extension.author)
@@ -220,8 +221,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         return project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.capitalize() + ZIP_SUFFIX.capitalize()) {
             group = GROUP_NAME
-            description = "Assembles the zip distribution of the HiveMQ extension" +
-                    if (classifier.isEmpty()) "" else " containing the $classifier jar"
+            description =
+                "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
 
             jar.set(jarProvider)
             with(extension.resources)
@@ -233,7 +234,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
     fun setupDebugging(project: Project, zipProvider: Provider<RegularFile>) {
         val prepareHivemqHomeTask = project.tasks.register<PrepareHivemqHome>(PREPARE_HIVEMQ_HOME_TASK_NAME) {
             group = GROUP_NAME
-            description = "Collects the resources of the HiveMQ home for $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME"
+            description =
+                "Prepares a HiveMQ home directory with the HiveMQ extension for debugging via $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME."
 
             hivemqExtensionZip.set(zipProvider)
             into(project.layout.buildDirectory.dir(HIVEMQ_HOME_FOLDER_NAME))
@@ -241,7 +243,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
         project.tasks.register<RunHivemq>(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME) {
             group = GROUP_NAME
-            description = "Runs HiveMQ with the extension"
+            description = "Runs HiveMQ with the extension for debugging."
 
             hivemqHomeDirectory.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
         }

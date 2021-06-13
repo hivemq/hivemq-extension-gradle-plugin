@@ -74,7 +74,7 @@ hivemqExtension {
 
 | Task                               | Description |
 |------------------------------------|-------------|
-| `hivemqExtensionJar`               | Assembles the jar archive of the HiveMQ extension |
+| `hivemqExtensionJar`               | Assembles the jar of the HiveMQ extension |
 | `hivemqExtensionServiceDescriptor` | Generates the service descriptor of the HiveMQ extension |
 | `hivemqExtensionXml`               | Generates the xml descriptor of the HiveMQ extension |
 | `hivemqExtensionZip`               | Assembles the zip distribution of the HiveMQ extension |

@@ -52,7 +52,7 @@ abstract class PrepareHivemqHome : Sync() {
     }
 
     /**
-     * HiveMQ extension zip archive used for debugging with the `runHivemqWithExtension` task.
+     * HiveMQ extension zip distribution used for debugging with the `runHivemqWithExtension` task.
      * The contents are unzipped to `build/hivemq-home/extensions`.
      */
     @get:Internal
