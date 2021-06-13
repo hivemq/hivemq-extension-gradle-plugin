@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.hivemq"
-description = "A gradle plugin to ease the development of HiveMQ extensions"
+description = "A Gradle plugin to ease the development of HiveMQ extensions"
 
 metadata {
     readableName.set("HiveMQ Extension Gradle Plugin")
