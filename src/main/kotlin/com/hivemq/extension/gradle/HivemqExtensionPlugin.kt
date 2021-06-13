@@ -88,16 +88,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun createExtension(project: Project): HivemqExtensionExtension {
-        val extension = project.extensions.create(
+        return project.extensions.create(
             HivemqExtensionExtension::class,
             EXTENSION_NAME,
             HivemqExtensionExtensionImpl::class,
             { project.copySpec() }
-        )
-
-        extension.mainClass.convention(project.memoizingProvider { findMainClass(project) })
-
-        return extension
+        ).apply {
+            mainClass.convention(project.memoizingProvider { findMainClass(project) })
+        }
     }
 
     fun addConfiguration(project: Project): Configuration {
