@@ -30,17 +30,15 @@ abstract class HivemqExtensionExtensionImpl @Inject constructor(
     copySpecFactory: () -> CopySpec
 ) : HivemqExtensionExtension {
 
-    override val name = objectFactory.property<String>()
-    override val author = objectFactory.property<String>()
-    override val priority = objectFactory.property<Int>().convention(0)
-    override val startPriority = objectFactory.property<Int>().convention(1000)
-    override val mainClass = objectFactory.property<String>()
-    override val sdkVersion = objectFactory.property<String>().convention("latest.integration")
-    final override val resources = copySpecFactory.invoke()
-
-    init {
-        resources.from("src/hivemq-extension")
-        resources.duplicatesStrategy = DuplicatesStrategy.WARN
+    final override val name = objectFactory.property<String>()
+    final override val author = objectFactory.property<String>()
+    final override val priority = objectFactory.property<Int>().convention(0)
+    final override val startPriority = objectFactory.property<Int>().convention(1000)
+    final override val mainClass = objectFactory.property<String>()
+    final override val sdkVersion = objectFactory.property<String>().convention("latest.integration")
+    final override val resources = copySpecFactory.invoke().apply {
+        from("src/hivemq-extension")
+        duplicatesStrategy = DuplicatesStrategy.WARN
     }
 
     override fun resources(action: Action<in CopySpec>) {
