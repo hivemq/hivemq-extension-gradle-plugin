@@ -32,7 +32,7 @@ hivemqExtension {
     priority.set(0)
     startPriority.set(1000)
     mainClass.set('org.example.ExtensionMain')
-    sdkVersion.set('4.6.1')
+    sdkVersion.set('4.6.2')
 }
 ```
 
@@ -64,7 +64,7 @@ hivemqExtension {
     priority.set(0)
     startPriority.set(1000)
     mainClass.set("org.example.ExtensionMain")
-    sdkVersion.set("4.6.1")
+    sdkVersion.set("4.6.2")
 }
 ```
 
@@ -111,7 +111,7 @@ You can find the output in `build/hivemq-extension` as `<project.name>-<project.
 
 You can add custom resources to the extension zip distribution by putting files into the `src/hivemq-extension` directory.
 
-Additionally, you can use the `hivemqExtension.resources` to add custom resources from any location or Gradle task.
+Additionally, you can use `hivemqExtension.resources` to add custom resources from any location or Gradle task.
 `hivemqExtension.resources` is of type `CopySpec`, so you can use `from`, `exclude`, `include`, `rename`, etc.
 (for a detailed explanation see the [Gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html))
 
