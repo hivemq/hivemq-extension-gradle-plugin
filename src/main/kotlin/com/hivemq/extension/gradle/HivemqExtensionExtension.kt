@@ -52,7 +52,7 @@ interface HivemqExtensionExtension {
     val mainClass: Property<String>
 
     /**
-     * Version of the HiveMQ extension SDK, recommended to specify, default: latest.integration
+     * Version of the HiveMQ extension SDK, recommended to specify, default: latest.release
      */
     val sdkVersion: Property<String>
 
