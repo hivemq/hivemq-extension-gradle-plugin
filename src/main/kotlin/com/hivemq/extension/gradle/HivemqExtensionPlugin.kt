@@ -24,11 +24,11 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
@@ -144,7 +144,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
 
             manifest.inheritFrom(project.tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).get().manifest)
-            from(project.the<JavaPluginConvention>().sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].output)
+            from(project.the<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].output)
             configurations = listOf(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
             val providedConfiguration = project.configurations[PROVIDED_CONFIGURATION_NAME]
             for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
@@ -180,7 +180,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     private fun findMainClass(project: Project): String? {
         val regex = Regex("[ ,:]ExtensionMain[ ,{]")
         var mainClass: String? = null
-        project.the<JavaPluginConvention>().sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].allSource.visit {
+        project.the<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].allSource.visit {
             if (!isDirectory && (file.name.endsWith(".java") || file.name.endsWith(".kt")) &&
                 file.readText().contains(regex)
             ) {
@@ -248,7 +248,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun setupIntegrationTesting(project: Project, zipProvider: Provider<RegularFile>) {
-        val sourceSets = project.the<JavaPluginConvention>().sourceSets
+        val sourceSets = project.the<SourceSetContainer>()
         val mainSourceSet = sourceSets[SourceSet.MAIN_SOURCE_SET_NAME]
         val testSourceSet = sourceSets[SourceSet.TEST_SOURCE_SET_NAME]
         val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME) {
