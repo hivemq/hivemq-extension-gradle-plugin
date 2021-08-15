@@ -276,9 +276,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
             description = "Runs integration tests."
 
             testClassesDirs = integrationTestSourceSet.output.classesDirs
-            classpath = integrationTestSourceSet.runtimeClasspath
+            classpath = integrationTestSourceSet.runtimeClasspath + prepareTask.get().outputs.files
             shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
-            dependsOn(prepareTask)
         }
 
         project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
