@@ -191,11 +191,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         return mainClass
     }
 
-    fun registerXmlTask(
-        project: Project,
-        extension: HivemqExtensionExtension
-    ): TaskProvider<HivemqExtensionXml> {
-
+    fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<HivemqExtensionXml> {
         return project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
             group = GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension."
