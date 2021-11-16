@@ -90,7 +90,7 @@ hivemqExtension {
 
 | Task                   | Description |
 |------------------------|-------------|
-| `integrationTest`      | Runs integration tests, which can use the built extension under `build/hivemq-extension-test` |
+| `integrationTest`      | Runs integration tests, which can use the built extension as a classpath resource |
 | `prepareExtensionTest` | Prepares the HiveMQ extension for integration testing via `integrationTest` |
 
 ## Requirements
@@ -137,7 +137,7 @@ It is also possible to specify a custom zip via the `hivemqExtensionZip` propert
 `prepareHivemqHome` is of type `Copy`/`Sync`, so you can add any additional files (configs, licenses, other extensions, etc.).
 (for a detailed explanation see the [Gradle documentation](https://docs.gradle.org/current/userguide/working_with_files.html))
 
-The resulting home folder can be seen in `build/hivemq-home`.
+The resulting home directory can be seen in `build/hivemq-home`.
 
 Example:
 
@@ -170,4 +170,4 @@ This plugin adds an `integrationTest` task which executes tests from the `integr
 - Integration test dependencies are defined via the `integrationTestImplementation`, `integrationTestRuntimeOnly`, etc. configurations.
 
 The `integrationTest` task builds the extension first and unzips it to the `build/hivemq-extension-test` directory.
-The tests can then load the built extension into a [HiveMQ Test Container](https://github.com/hivemq/hivemq-testcontainer).
+The tests can then load the built extension into a [HiveMQ Test Container](https://github.com/hivemq/hivemq-testcontainer) as a classpath resource.
