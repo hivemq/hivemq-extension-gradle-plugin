@@ -10,7 +10,7 @@ Content of the `settings.gradle` file:
 ```groovy
 pluginManagement {
     plugins {
-        id 'com.hivemq.extension' version '2.1.1'
+        id 'com.hivemq.extension' version '2.1.2'
     }
 }
 
@@ -44,7 +44,7 @@ rootProject.name = "example-extension"
 
 pluginManagement {
     plugins {
-        id("com.hivemq.extension") version "2.1.1"
+        id("com.hivemq.extension") version "2.1.2"
     }
 }
 ```
