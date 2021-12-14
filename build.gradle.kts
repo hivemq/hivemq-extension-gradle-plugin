@@ -49,6 +49,10 @@ repositories {
 
 dependencies {
     api("com.github.jengelman.gradle.plugins:shadow:${property("shadow.version")}")
+    constraints {
+        //not used for logging, only PluginCache is used
+        implementation("org.apache.logging.log4j:log4j-core:2.16.0")
+    }
 }
 
 gradlePlugin {
