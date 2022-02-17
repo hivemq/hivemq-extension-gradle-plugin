@@ -72,26 +72,26 @@ hivemqExtension {
 
 ### Build Tasks
 
-| Task                               | Description |
-|------------------------------------|-------------|
-| `hivemqExtensionJar`               | Assembles the jar of the HiveMQ extension |
+| Task                               | Description                                              |
+|------------------------------------|----------------------------------------------------------|
+| `hivemqExtensionJar`               | Assembles the jar of the HiveMQ extension                |
 | `hivemqExtensionServiceDescriptor` | Generates the service descriptor of the HiveMQ extension |
-| `hivemqExtensionXml`               | Generates the xml descriptor of the HiveMQ extension |
-| `hivemqExtensionZip`               | Assembles the zip distribution of the HiveMQ extension |
+| `hivemqExtensionXml`               | Generates the xml descriptor of the HiveMQ extension     |
+| `hivemqExtensionZip`               | Assembles the zip distribution of the HiveMQ extension   |
 
 ### Run/Debug Tasks
 
-| Task                     | Description |
-|--------------------------|-------------|
+| Task                     | Description                                                                                           |
+|--------------------------|-------------------------------------------------------------------------------------------------------|
 | `prepareHivemqHome`      | Prepares a HiveMQ home directory with the HiveMQ extension for debugging via `runHivemqWithExtension` |
-| `runHivemqWithExtension` | Runs HiveMQ with the extension for debugging |
+| `runHivemqWithExtension` | Runs HiveMQ with the extension for debugging                                                          |
 
 ### Test Tasks
 
-| Task                   | Description |
-|------------------------|-------------|
+| Task                   | Description                                                                       |
+|------------------------|-----------------------------------------------------------------------------------|
 | `integrationTest`      | Runs integration tests, which can use the built extension as a classpath resource |
-| `prepareExtensionTest` | Prepares the HiveMQ extension for integration testing via `integrationTest` |
+| `prepareExtensionTest` | Prepares the HiveMQ extension for integration testing via `integrationTest`       |
 
 ## Requirements
 
