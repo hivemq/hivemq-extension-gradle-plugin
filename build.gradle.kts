@@ -67,8 +67,8 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://github.com/hivemq/hivemq-extension-gradle-plugin"
-    vcsUrl = "https://github.com/hivemq/hivemq-extension-gradle-plugin.git"
+    website = metadata.url.get()
+    vcsUrl = metadata.scm.get().url.get()
     tags = listOf("hivemq", "extension")
 }
 
