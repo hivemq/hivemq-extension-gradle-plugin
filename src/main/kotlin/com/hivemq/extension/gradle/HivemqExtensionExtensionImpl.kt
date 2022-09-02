@@ -27,7 +27,7 @@ import javax.inject.Inject
  */
 abstract class HivemqExtensionExtensionImpl @Inject constructor(
     objectFactory: ObjectFactory,
-    copySpecFactory: () -> CopySpec
+    copySpecFactory: () -> CopySpec,
 ) : HivemqExtensionExtension {
 
     final override val name = objectFactory.property<String>()
@@ -41,7 +41,5 @@ abstract class HivemqExtensionExtensionImpl @Inject constructor(
         duplicatesStrategy = DuplicatesStrategy.WARN
     }
 
-    override fun resources(action: Action<in CopySpec>) {
-        action.execute(resources)
-    }
+    final override fun resources(action: Action<in CopySpec>) = action.execute(resources)
 }

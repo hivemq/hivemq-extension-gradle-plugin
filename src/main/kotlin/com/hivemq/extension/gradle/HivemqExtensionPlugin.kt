@@ -127,7 +127,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     fun registerJarTask(
         project: Project,
         extension: HivemqExtensionExtension,
-        classifier: String = ""
+        classifier: String = "",
     ): TaskProvider<ShadowJar> {
 
         val serviceDescriptorTask = registerServiceDescriptorTask(project, extension)
@@ -153,19 +153,13 @@ class HivemqExtensionPlugin : Plugin<Project> {
                     dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.name}"))
                 }
             }
-            exclude(
-                "META-INF/INDEX.LIST",
-                "META-INF/*.SF",
-                "META-INF/*.DSA",
-                "META-INF/*.RSA",
-                "module-info.class"
-            )
+            exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
         }
     }
 
     private fun registerServiceDescriptorTask(
         project: Project,
-        extension: HivemqExtensionExtension
+        extension: HivemqExtensionExtension,
     ): TaskProvider<HivemqExtensionServiceDescriptor> {
 
         return project.tasks.register<HivemqExtensionServiceDescriptor>(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
