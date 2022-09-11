@@ -1,8 +1,8 @@
 plugins {
     `kotlin-dsl`
-    `maven-publish`
     id("com.gradle.plugin-publish")
     id("com.github.hierynomus.license")
+    id("io.github.sgtsilvio.gradle.defaults")
     id("com.github.sgtsilvio.gradle.metadata")
 }
 
@@ -39,8 +39,6 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
-    withJavadocJar()
-    withSourcesJar()
 }
 
 repositories {
