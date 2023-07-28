@@ -23,4 +23,4 @@ fun <T> Project.memoizingProvider(initializer: () -> T): Provider<T> {
     return provider { lazy.value }
 }
 
-val Project.versionProvider get() = memoizingProvider { version.toString() }
+internal val Project.versionProvider get() = memoizingProvider { version.toString() }
