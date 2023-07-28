@@ -3,7 +3,7 @@ plugins {
     id("com.gradle.plugin-publish")
     id("com.github.hierynomus.license")
     id("io.github.sgtsilvio.gradle.defaults")
-    id("com.github.sgtsilvio.gradle.metadata")
+    id("io.github.sgtsilvio.gradle.metadata")
 }
 
 group = "com.hivemq"
@@ -29,8 +29,6 @@ metadata {
         }
     }
     github {
-        org.set("hivemq")
-        repo.set("hivemq-extension-gradle-plugin")
         issues()
     }
 }
@@ -54,20 +52,17 @@ dependencies {
 }
 
 gradlePlugin {
+    website.set(metadata.url)
+    vcsUrl.set(metadata.scm.get().url)
     plugins {
         create("extension") {
             id = "$group.$name"
+            implementationClass = "$group.$name.gradle.HivemqExtensionPlugin"
             displayName = metadata.readableName.get()
             description = project.description
-            implementationClass = "$group.extension.gradle.HivemqExtensionPlugin"
+            tags.set(listOf("hivemq", "extension"))
         }
     }
-}
-
-pluginBundle {
-    website = metadata.url.get()
-    vcsUrl = metadata.scm.get().url.get()
-    tags = listOf("hivemq", "extension")
 }
 
 license {
