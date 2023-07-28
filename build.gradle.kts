@@ -47,7 +47,7 @@ dependencies {
     api(libs.shadow)
     constraints {
         //not used for logging, only PluginCache is used
-        implementation("org.apache.logging.log4j:log4j-core:2.17.2")
+        implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     }
 }
 
