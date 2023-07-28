@@ -16,6 +16,9 @@
 package com.hivemq.extension.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
@@ -39,7 +42,7 @@ abstract class HivemqExtensionXml : DefaultTask() {
      * Defaults to the project name. Should not be changed without a specific reason.
      */
     @get:Input
-    val id = project.objects.property<String>().convention(project.name)
+    val id: Property<String> = project.objects.property<String>().convention(project.name)
 
     /**
      * Version of the HiveMQ extension.
@@ -47,7 +50,7 @@ abstract class HivemqExtensionXml : DefaultTask() {
      * Defaults to the project version. Should not be changed without a specific reason.
      */
     @get:Input
-    val version = project.objects.property<String>().convention(project.versionProvider)
+    val version: Property<String> = project.objects.property<String>().convention(project.versionProvider)
 
     /**
      * Name of the HiveMQ extension.
@@ -83,7 +86,7 @@ abstract class HivemqExtensionXml : DefaultTask() {
      * Xml descriptor file of the HiveMQ extension.
      */
     @get:OutputFile
-    val xmlFile = destinationDirectory.file(EXTENSION_XML_NAME)
+    val xmlFile: Provider<RegularFile> = destinationDirectory.file(EXTENSION_XML_NAME)
 
     @TaskAction
     protected fun run() {
