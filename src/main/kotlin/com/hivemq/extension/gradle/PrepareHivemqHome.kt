@@ -16,6 +16,7 @@
 package com.hivemq.extension.gradle
 
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.property
@@ -37,7 +38,7 @@ abstract class PrepareHivemqHome : Sync() {
      * Defaults to the project name. Should not be changed without a specific reason.
      */
     @get:Internal
-    val hivemqExtensionId = project.objects.property<String>().convention(project.name)
+    val hivemqExtensionId: Property<String> = project.objects.property<String>().convention(project.name)
 
     /**
      * HiveMQ home directory (unzipped) used for debugging with the `runHivemqWithExtension` task.

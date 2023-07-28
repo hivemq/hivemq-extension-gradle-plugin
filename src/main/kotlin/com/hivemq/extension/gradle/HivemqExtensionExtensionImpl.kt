@@ -19,6 +19,7 @@ import org.gradle.api.Action
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
@@ -32,11 +33,11 @@ abstract class HivemqExtensionExtensionImpl @Inject constructor(
 
     final override val name = objectFactory.property<String>()
     final override val author = objectFactory.property<String>()
-    final override val priority = objectFactory.property<Int>().convention(0)
-    final override val startPriority = objectFactory.property<Int>().convention(1000)
+    final override val priority: Property<Int> = objectFactory.property<Int>().convention(0)
+    final override val startPriority: Property<Int> = objectFactory.property<Int>().convention(1000)
     final override val mainClass = objectFactory.property<String>()
-    final override val sdkVersion = objectFactory.property<String>().convention("latest.release")
-    final override val resources = copySpecFactory.invoke().apply {
+    final override val sdkVersion: Property<String> = objectFactory.property<String>().convention("latest.release")
+    final override val resources = copySpecFactory().apply {
         from("src/hivemq-extension")
         duplicatesStrategy = DuplicatesStrategy.WARN
     }

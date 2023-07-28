@@ -16,6 +16,8 @@
 package com.hivemq.extension.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
@@ -49,7 +51,7 @@ abstract class HivemqExtensionServiceDescriptor : DefaultTask() {
      * Service descriptor file of the HiveMQ extension.
      */
     @get:OutputFile
-    val serviceDescriptorFile = destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME)
+    val serviceDescriptorFile: Provider<RegularFile> = destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME)
 
     @TaskAction
     protected fun run() {
