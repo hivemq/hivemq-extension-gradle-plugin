@@ -83,10 +83,17 @@ abstract class HivemqExtensionXml : DefaultTask() {
     val destinationDirectory = project.objects.directoryProperty()
 
     /**
-     * Xml descriptor file of the HiveMQ extension.
+     * Property for [xmlFile] that is only publicly exposed as a provider.
+     * It is defined as a protected property so this task is attached as a producer.
      */
     @get:OutputFile
-    val xmlFile: Provider<RegularFile> = destinationDirectory.file(EXTENSION_XML_NAME)
+    protected val xmlFileProperty = project.objects.fileProperty().value(destinationDirectory.file(EXTENSION_XML_NAME))
+
+    /**
+     * Xml descriptor file of the HiveMQ extension.
+     */
+    @get:Internal
+    val xmlFile: Provider<RegularFile> = xmlFileProperty
 
     @TaskAction
     protected fun run() {
