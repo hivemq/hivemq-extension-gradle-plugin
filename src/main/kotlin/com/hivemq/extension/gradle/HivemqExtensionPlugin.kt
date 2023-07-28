@@ -46,10 +46,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
         const val GROUP_NAME: String = "hivemq extension"
         const val BUILD_FOLDER_NAME: String = "hivemq-extension"
         const val TASK_PREFIX: String = "hivemqExtension"
-        const val JAR_SUFFIX: String = "jar"
-        const val ZIP_SUFFIX: String = "zip"
-        const val SERVICE_DESCRIPTOR_SUFFIX: String = "serviceDescriptor"
-        const val XML_SUFFIX: String = "xml"
+        const val JAR_SUFFIX: String = "Jar"
+        const val ZIP_SUFFIX: String = "Zip"
+        const val SERVICE_DESCRIPTOR_TASK_NAME: String = "${TASK_PREFIX}ServiceDescriptor"
+        const val XML_TASK_NAME: String = "${TASK_PREFIX}Xml"
         const val PROVIDED_CONFIGURATION_NAME: String = "hivemqProvided"
 
         const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
@@ -92,7 +92,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             HivemqExtensionExtension::class,
             EXTENSION_NAME,
             HivemqExtensionExtensionImpl::class,
-            { project.copySpec() }
+            { project.copySpec() },
         ).apply {
             mainClass.convention(project.memoizingProvider { findMainClass(project) })
         }
@@ -135,7 +135,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             from(serviceDescriptorTask) { into("META-INF/services") }
         }
 
-        return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.capitalize() + JAR_SUFFIX.capitalize()) {
+        return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + JAR_SUFFIX) {
             group = GROUP_NAME
             description =
                 "Assembles the ${if (classifier.isEmpty()) "" else "$classifier "}jar of the HiveMQ extension."
@@ -161,8 +161,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project: Project,
         extension: HivemqExtensionExtension,
     ): TaskProvider<HivemqExtensionServiceDescriptor> {
-
-        return project.tasks.register<HivemqExtensionServiceDescriptor>(TASK_PREFIX + SERVICE_DESCRIPTOR_SUFFIX.capitalize()) {
+        return project.tasks.register<HivemqExtensionServiceDescriptor>(SERVICE_DESCRIPTOR_TASK_NAME) {
             group = GROUP_NAME
             description = "Generates the service descriptor of the HiveMQ extension."
 
@@ -186,7 +185,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<HivemqExtensionXml> {
-        return project.tasks.register<HivemqExtensionXml>(TASK_PREFIX + XML_SUFFIX.capitalize()) {
+        return project.tasks.register<HivemqExtensionXml>(XML_TASK_NAME) {
             group = GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension."
 
@@ -206,8 +205,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         jarProvider: Provider<RegularFile>,
         classifier: String = ""
     ): TaskProvider<HivemqExtensionZip> {
-
-        return project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.capitalize() + ZIP_SUFFIX.capitalize()) {
+        return project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + ZIP_SUFFIX) {
             group = GROUP_NAME
             description =
                 "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
