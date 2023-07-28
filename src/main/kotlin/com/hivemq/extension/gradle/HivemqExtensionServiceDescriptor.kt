@@ -48,10 +48,18 @@ abstract class HivemqExtensionServiceDescriptor : DefaultTask() {
     val destinationDirectory = project.objects.directoryProperty()
 
     /**
-     * Service descriptor file of the HiveMQ extension.
+     * Property for [serviceDescriptorFile] that is only publicly exposed as a provider.
+     * It is defined as a protected property so this task is attached as a producer.
      */
     @get:OutputFile
-    val serviceDescriptorFile: Provider<RegularFile> = destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME)
+    protected val serviceDescriptorFileProperty =
+        project.objects.fileProperty().value(destinationDirectory.file(EXTENSION_MAIN_CLASS_NAME))
+
+    /**
+     * Service descriptor file of the HiveMQ extension.
+     */
+    @get:Internal
+    val serviceDescriptorFile: Provider<RegularFile> = serviceDescriptorFileProperty
 
     @TaskAction
     protected fun run() {
