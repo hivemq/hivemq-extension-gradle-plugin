@@ -234,7 +234,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun setupIntegrationTesting(project: Project, zipProvider: Provider<RegularFile>) {
-        val sourceSets = project.the<SourceSetContainer>()
+        val sourceSets = project.extensions.getByType<SourceSetContainer>()
         val mainSourceSet = sourceSets[SourceSet.MAIN_SOURCE_SET_NAME]
         val testSourceSet = sourceSets[SourceSet.TEST_SOURCE_SET_NAME]
         val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME) {
