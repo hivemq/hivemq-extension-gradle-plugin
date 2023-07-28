@@ -1,9 +1,9 @@
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish")
-    id("com.github.hierynomus.license")
-    id("io.github.sgtsilvio.gradle.defaults")
-    id("io.github.sgtsilvio.gradle.metadata")
+    alias(libs.plugins.pluginPublish)
+    alias(libs.plugins.defaults)
+    alias(libs.plugins.metadata)
+    alias(libs.plugins.license)
 }
 
 group = "com.hivemq"
@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    api("com.github.jengelman.gradle.plugins:shadow:${property("shadow.version")}")
+    api(libs.shadow)
     constraints {
         //not used for logging, only PluginCache is used
         implementation("org.apache.logging.log4j:log4j-core:2.17.2")
