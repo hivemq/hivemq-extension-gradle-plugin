@@ -144,7 +144,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
 
             manifest.inheritFrom(project.tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).get().manifest)
-            from(project.the<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].output)
+            from(project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].output)
             configurations = listOf(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
             val providedConfiguration = project.configurations[PROVIDED_CONFIGURATION_NAME]
             for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
@@ -172,7 +172,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     private fun findMainClass(project: Project): String? {
         val regex = Regex("[ ,:]ExtensionMain[ ,{]")
         var mainClass: String? = null
-        project.the<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].allSource.visit {
+        project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].allSource.visit {
             if (!isDirectory && (file.name.endsWith(".java") || file.name.endsWith(".kt")) &&
                 file.readText().contains(regex)
             ) {
