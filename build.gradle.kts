@@ -65,6 +65,12 @@ gradlePlugin {
     }
 }
 
+testing {
+    suites.named<JvmTestSuite>("test") {
+        useJUnitJupiter(libs.versions.junit.jupiter)
+    }
+}
+
 license {
     header = rootDir.resolve("HEADER")
     mapping("kt", "SLASHSTAR_STYLE")
