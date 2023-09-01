@@ -16,7 +16,6 @@
 package com.hivemq.extension.gradle
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
@@ -34,7 +33,6 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
-import org.gradle.util.GradleVersion
 
 /**
  * @author Lukas Brand, Silvio Giebl
@@ -78,12 +76,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project.plugins.apply(JavaPlugin::class)
 
         project.extensions.configure<JavaPluginExtension> {
-            if (GradleVersion.current() >= GradleVersion.version("6.7")) {
-                toolchain.languageVersion.set(JavaLanguageVersion.of(11))
-            } else {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
-            }
+            toolchain.languageVersion.set(JavaLanguageVersion.of(11))
         }
     }
 
