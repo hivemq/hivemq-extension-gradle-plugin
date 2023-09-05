@@ -29,7 +29,7 @@ import org.gradle.kotlin.dsl.property
 abstract class HivemqExtensionZip : Zip() {
 
     /**
-     * Id of the HiveMQ extension.
+     * ID of the HiveMQ extension.
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */

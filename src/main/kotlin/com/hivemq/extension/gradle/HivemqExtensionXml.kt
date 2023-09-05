@@ -37,7 +37,7 @@ abstract class HivemqExtensionXml : DefaultTask() {
     }
 
     /**
-     * Id of the HiveMQ extension.
+     * ID of the HiveMQ extension.
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */
