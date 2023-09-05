@@ -41,23 +41,23 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     companion object {
         const val EXTENSION_NAME: String = "hivemqExtension"
-        const val GROUP_NAME: String = "hivemq extension"
+        const val TASK_GROUP_NAME: String = "hivemq extension"
         const val BUILD_FOLDER_NAME: String = "hivemq-extension"
         const val TASK_PREFIX: String = "hivemqExtension"
         const val JAR_SUFFIX: String = "Jar"
-        const val ZIP_SUFFIX: String = "Zip"
-        const val SERVICE_DESCRIPTOR_TASK_NAME: String = "${TASK_PREFIX}ServiceDescriptor"
-        const val XML_TASK_NAME: String = "${TASK_PREFIX}Xml"
+        private const val ZIP_SUFFIX: String = "Zip"
+        private const val SERVICE_DESCRIPTOR_TASK_NAME: String = "${TASK_PREFIX}ServiceDescriptor"
+        private const val XML_TASK_NAME: String = "${TASK_PREFIX}Xml"
         const val PROVIDED_CONFIGURATION_NAME: String = "hivemqProvided"
 
-        const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
-        const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
-        const val HIVEMQ_HOME_FOLDER_NAME: String = "hivemq-home"
+        private const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
+        private const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
+        private const val HIVEMQ_HOME_FOLDER_NAME: String = "hivemq-home"
 
-        const val INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest"
-        const val INTEGRATION_TEST_TASK_NAME = "integrationTest"
+        private const val INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest"
+        private const val INTEGRATION_TEST_TASK_NAME = "integrationTest"
         const val PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME = "prepareHivemqExtensionTest"
-        const val HIVEMQ_EXTENSION_TEST_FOLDER_NAME = "hivemq-extension-test"
+        private const val HIVEMQ_EXTENSION_TEST_FOLDER_NAME = "hivemq-extension-test"
     }
 
     override fun apply(project: Project) {
@@ -129,7 +129,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
 
         return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + JAR_SUFFIX) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description =
                 "Assembles the ${if (classifier.isEmpty()) "" else "$classifier "}jar of the HiveMQ extension."
 
@@ -155,7 +155,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         extension: HivemqExtensionExtension,
     ): TaskProvider<HivemqExtensionServiceDescriptor> =
         project.tasks.register<HivemqExtensionServiceDescriptor>(SERVICE_DESCRIPTOR_TASK_NAME) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description = "Generates the service descriptor of the HiveMQ extension."
 
             mainClass.set(extension.mainClass)
@@ -178,7 +178,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<HivemqExtensionXml> {
         return project.tasks.register<HivemqExtensionXml>(XML_TASK_NAME) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension."
 
             name.set(extension.name)
@@ -198,7 +198,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         classifier: String = ""
     ): TaskProvider<HivemqExtensionZip> =
         project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + ZIP_SUFFIX) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description =
                 "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
 
@@ -210,7 +210,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun setupDebugging(project: Project, zipProvider: Provider<RegularFile>) {
         val prepareHivemqHomeTask = project.tasks.register<PrepareHivemqHome>(PREPARE_HIVEMQ_HOME_TASK_NAME) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description =
                 "Prepares a HiveMQ home directory with the HiveMQ extension for debugging via $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME."
 
@@ -219,7 +219,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
 
         project.tasks.register<RunHivemq>(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description = "Runs HiveMQ with the extension for debugging."
 
             hivemqHomeDirectory.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
@@ -243,7 +243,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
 
         val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
-            group = GROUP_NAME
+            group = TASK_GROUP_NAME
             description = "Prepares the HiveMQ extension for integration testing."
 
             hivemqExtensionZip.set(zipProvider)
