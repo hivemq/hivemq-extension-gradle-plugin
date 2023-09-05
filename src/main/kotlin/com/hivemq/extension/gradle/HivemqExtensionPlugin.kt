@@ -112,9 +112,9 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     private fun addDependencies(project: Project, extension: HivemqExtensionExtension) {
-        addConfiguration(project).withDependencies {
-            add(project.dependencies.create("com.hivemq:hivemq-extension-sdk:${extension.sdkVersion.get()}"))
-        }
+        addConfiguration(project).dependencies.addLater(extension.sdkVersion.map {
+            project.dependencies.create("com.hivemq:hivemq-extension-sdk:$it")
+        })
         addRepositories(project)
     }
 
