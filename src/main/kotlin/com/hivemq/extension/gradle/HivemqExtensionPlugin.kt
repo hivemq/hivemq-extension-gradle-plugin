@@ -75,7 +75,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun configureJava(project: Project) {
         project.plugins.apply(JavaPlugin::class)
-
         project.extensions.configure<JavaPluginExtension> {
             toolchain.languageVersion.set(JavaLanguageVersion.of(11))
         }
@@ -133,7 +132,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = TASK_GROUP_NAME
             description =
                 "Assembles the ${if (classifier.isEmpty()) "" else "$classifier "}jar of the HiveMQ extension."
-
             archiveClassifier.set(classifier)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
 
@@ -158,7 +156,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project.tasks.register<HivemqExtensionServiceDescriptor>(SERVICE_DESCRIPTOR_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Generates the service descriptor of the HiveMQ extension."
-
             mainClass.set(extension.mainClass)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
@@ -181,7 +178,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         return project.tasks.register<HivemqExtensionXml>(XML_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Generates the xml descriptor of the HiveMQ extension."
-
             name.set(extension.name)
             author.set(extension.author)
             priority.set(extension.priority)
@@ -202,11 +198,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = TASK_GROUP_NAME
             description =
                 "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
-
+            archiveClassifier.set(classifier)
+            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
             jar.set(jarProvider)
             with(extension.resources)
-            destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
-            archiveClassifier.set(classifier)
         }
 
     fun setupDebugging(project: Project, zipProvider: Provider<RegularFile>) {
@@ -214,7 +209,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             group = TASK_GROUP_NAME
             description =
                 "Prepares a HiveMQ home directory with the HiveMQ extension for debugging via $RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME."
-
             hivemqExtensionZip.set(zipProvider)
             into(project.layout.buildDirectory.dir(HIVEMQ_HOME_FOLDER_NAME))
         }
@@ -222,7 +216,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project.tasks.register<RunHivemq>(RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Runs HiveMQ with the extension for debugging."
-
             hivemqHomeDirectory.set(project.layout.dir(prepareHivemqHomeTask.map { it.destinationDir }))
         }
     }
@@ -246,7 +239,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Prepares the HiveMQ extension for integration testing."
-
             hivemqExtensionZip.set(zipProvider)
             into(project.layout.buildDirectory.dir(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
         }
@@ -254,7 +246,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
         val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_TASK_NAME) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs integration tests."
-
             testClassesDirs = integrationTestSourceSet.output.classesDirs
             classpath = integrationTestSourceSet.runtimeClasspath + prepareTask.get().outputs.files
             shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
