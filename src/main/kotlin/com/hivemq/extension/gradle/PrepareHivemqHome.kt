@@ -33,7 +33,7 @@ abstract class PrepareHivemqHome : Sync() {
     }
 
     /**
-     * Id of the HiveMQ extension associated with the [hivemqExtensionZip].
+     * ID of the HiveMQ extension associated with the [hivemqExtensionZip].
      *
      * Defaults to the project name. Should not be changed without a specific reason.
      */
