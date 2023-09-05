@@ -67,10 +67,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
         addDependencies(project, extension)
         val jarTask = registerJarTask(project, extension)
         registerXmlTask(project, extension)
-        val zipTask = registerZipTask(project, extension, jarTask.flatMap { it.archiveFile })
+        val zipTask = registerZipTask(project, extension, jarTask.archiveFile)
 
-        setupDebugging(project, zipTask.flatMap { it.archiveFile })
-        setupIntegrationTesting(project, zipTask.flatMap { it.archiveFile })
+        setupDebugging(project, zipTask.archiveFile)
+        setupIntegrationTesting(project, zipTask.archiveFile)
     }
 
     fun configureJava(project: Project) {
