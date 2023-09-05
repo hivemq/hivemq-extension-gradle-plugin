@@ -20,6 +20,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
+fun String.firstUppercase() = replaceFirstChar(Char::uppercaseChar)
+
 fun <T> Project.memoizingProvider(initializer: () -> T): Provider<T> {
     val lazy = lazy(initializer)
     return provider { lazy.value }
