@@ -104,8 +104,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun addRepositories(project: Project) {
-        if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
-            project.repositories.mavenCentral()
+        project.afterEvaluate {
+            if (project.repositories.findByName(ArtifactRepositoryContainer.DEFAULT_MAVEN_CENTRAL_REPO_NAME) == null) {
+                project.repositories.mavenCentral()
+            }
         }
     }
 
@@ -113,9 +115,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         addConfiguration(project).withDependencies {
             add(project.dependencies.create("com.hivemq:hivemq-extension-sdk:${extension.sdkVersion.get()}"))
         }
-        project.afterEvaluate {
-            addRepositories(project)
-        }
+        addRepositories(project)
     }
 
     fun registerJarTask(
