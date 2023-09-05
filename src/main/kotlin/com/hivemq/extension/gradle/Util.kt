@@ -16,7 +16,9 @@
 package com.hivemq.extension.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 fun <T> Project.memoizingProvider(initializer: () -> T): Provider<T> {
     val lazy = lazy(initializer)
@@ -24,3 +26,5 @@ fun <T> Project.memoizingProvider(initializer: () -> T): Provider<T> {
 }
 
 internal val Project.versionProvider get() = memoizingProvider { version.toString() }
+
+val Provider<out AbstractArchiveTask>.archiveFile: Provider<RegularFile> get() = flatMap { it.archiveFile }
