@@ -128,7 +128,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             from(serviceDescriptorTask) { into("META-INF/services") }
         }
 
-        return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + JAR_SUFFIX) {
+        return project.tasks.register<ShadowJar>(TASK_PREFIX + classifier.firstUppercase() + JAR_SUFFIX) {
             group = TASK_GROUP_NAME
             description =
                 "Assembles the ${if (classifier.isEmpty()) "" else "$classifier "}jar of the HiveMQ extension."
@@ -194,7 +194,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         jarProvider: Provider<RegularFile>,
         classifier: String = ""
     ): TaskProvider<HivemqExtensionZip> =
-        project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.replaceFirstChar(Char::uppercaseChar) + ZIP_SUFFIX) {
+        project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.firstUppercase() + ZIP_SUFFIX) {
             group = TASK_GROUP_NAME
             description =
                 "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
