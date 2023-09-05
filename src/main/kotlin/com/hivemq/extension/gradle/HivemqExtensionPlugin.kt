@@ -37,6 +37,7 @@ import org.gradle.kotlin.dsl.*
 /**
  * @author Lukas Brand, Silvio Giebl
  */
+@Suppress("unused")
 class HivemqExtensionPlugin : Plugin<Project> {
 
     companion object {
