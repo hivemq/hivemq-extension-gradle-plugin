@@ -50,6 +50,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         private const val SERVICE_DESCRIPTOR_TASK_NAME: String = "${TASK_PREFIX}ServiceDescriptor"
         private const val XML_TASK_NAME: String = "${TASK_PREFIX}Xml"
         const val PROVIDED_CONFIGURATION_NAME: String = "hivemqProvided"
+        const val INCLUDED_CONFIGURATION_NAME: String = "hivemqExtensionIncluded"
 
         private const val PREPARE_HIVEMQ_HOME_TASK_NAME: String = "prepareHivemqHome"
         private const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
@@ -99,6 +100,19 @@ class HivemqExtensionPlugin : Plugin<Project> {
         project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
             extendsFrom(providedConfiguration)
         }
+        project.configurations.create(INCLUDED_CONFIGURATION_NAME) {
+            isCanBeResolved = true
+            isCanBeConsumed = false
+            extendsFrom(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
+            withDependencies {
+                for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
+                    val id = component.moduleVersion
+                    if (id != null) {
+                        exclude(id.group, id.name)
+                    }
+                }
+            }
+        }
         return providedConfiguration
     }
 
@@ -137,14 +151,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
             manifest.inheritFrom(project.tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).get().manifest)
             from(project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].output)
-            configurations = listOf(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
-            val providedConfiguration = project.configurations[PROVIDED_CONFIGURATION_NAME]
-            for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
-                val id = component.moduleVersion
-                if (id != null) {
-                    dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.name}"))
-                }
-            }
+            configurations = listOf(project.configurations[INCLUDED_CONFIGURATION_NAME])
             exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
         }
     }
