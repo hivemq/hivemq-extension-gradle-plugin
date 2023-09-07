@@ -231,19 +231,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
 
     fun setupIntegrationTesting(project: Project, zipProvider: Provider<RegularFile>) {
         val sourceSets = project.extensions.getByType<SourceSetContainer>()
-        val mainSourceSet = sourceSets[SourceSet.MAIN_SOURCE_SET_NAME]
-        val testSourceSet = sourceSets[SourceSet.TEST_SOURCE_SET_NAME]
-        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME) {
-            compileClasspath += mainSourceSet.output
-            runtimeClasspath += mainSourceSet.output
-        }
-
-        project.configurations.named(integrationTestSourceSet.implementationConfigurationName) {
-            extendsFrom(project.configurations[testSourceSet.implementationConfigurationName])
-        }
-        project.configurations.named(integrationTestSourceSet.runtimeOnlyConfigurationName) {
-            extendsFrom(project.configurations[testSourceSet.runtimeOnlyConfigurationName])
-        }
+        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME)
 
         val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
             group = TASK_GROUP_NAME
