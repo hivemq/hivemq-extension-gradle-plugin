@@ -230,9 +230,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
     }
 
     fun setupIntegrationTesting(project: Project, zipProvider: Provider<RegularFile>) {
-        val sourceSets = project.extensions.getByType<SourceSetContainer>()
-        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME)
-
         val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Prepares the HiveMQ extension for integration testing."
@@ -240,6 +237,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
             into(project.layout.buildDirectory.dir(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
         }
 
+        val sourceSets = project.extensions.getByType<SourceSetContainer>()
+        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME)
         val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_TASK_NAME) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs integration tests."
@@ -247,7 +246,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             classpath = integrationTestSourceSet.runtimeClasspath + prepareTask.get().outputs.files
             shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
         }
-
         project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
     }
 }
