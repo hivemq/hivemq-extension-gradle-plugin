@@ -159,13 +159,14 @@ class HivemqExtensionPlugin : Plugin<Project> {
     private fun registerServiceDescriptorTask(
         project: Project,
         extension: HivemqExtensionExtension,
-    ): TaskProvider<HivemqExtensionServiceDescriptor> =
-        project.tasks.register<HivemqExtensionServiceDescriptor>(SERVICE_DESCRIPTOR_TASK_NAME) {
+    ): TaskProvider<HivemqExtensionServiceDescriptor> {
+        return project.tasks.register<HivemqExtensionServiceDescriptor>(SERVICE_DESCRIPTOR_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Generates the service descriptor of the HiveMQ extension."
             mainClass.set(extension.mainClass)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
+    }
 
     private fun findMainClass(project: Project): String? {
         val regex = Regex("[ ,:]ExtensionMain[ ,{]")
@@ -200,8 +201,8 @@ class HivemqExtensionPlugin : Plugin<Project> {
         extension: HivemqExtensionExtension,
         jarProvider: Provider<RegularFile>,
         classifier: String = ""
-    ): TaskProvider<HivemqExtensionZip> =
-        project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.firstUppercase() + ZIP_SUFFIX) {
+    ): TaskProvider<HivemqExtensionZip> {
+        return project.tasks.register<HivemqExtensionZip>(TASK_PREFIX + classifier.firstUppercase() + ZIP_SUFFIX) {
             group = TASK_GROUP_NAME
             description =
                 "Assembles the zip distribution of the HiveMQ extension${if (classifier.isEmpty()) "" else " containing the $classifier jar"}."
@@ -210,6 +211,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             jar.set(jarProvider)
             with(extension.resources)
         }
+    }
 
     fun setupDebugging(project: Project, zipProvider: Provider<RegularFile>) {
         val prepareHivemqHomeTask = project.tasks.register<PrepareHivemqHome>(PREPARE_HIVEMQ_HOME_TASK_NAME) {
