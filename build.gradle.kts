@@ -74,7 +74,8 @@ val pluginTestInitScript by tasks.registering {
     inputs.property("repositoryPath", repositoryPath)
     val pluginIds = provider { gradlePlugin.plugins.map { it.id } }
     inputs.property("pluginIds", pluginIds)
-    val coordinates = provider { (publishing.publications["pluginMaven"] as MavenPublication).run { "$groupId:$artifactId:$version" } }
+    val coordinates =
+        provider { (publishing.publications["pluginMaven"] as MavenPublication).run { "$groupId:$artifactId:$version" } }
     inputs.property("coordinates", coordinates)
     val outputFile = project.layout.buildDirectory.file("pluginTest/init.gradle.kts")
     outputs.file(outputFile)
@@ -102,15 +103,21 @@ val pluginTestInitScript by tasks.registering {
     }
 }
 
+@Suppress("UnstableApiUsage")
 testing {
-    suites.named<JvmTestSuite>("test") {
-        useJUnitJupiter(libs.versions.junit.jupiter)
-        targets.configureEach {
-            testTask {
-                dependsOn("publishPluginMavenPublicationToPluginTestRepository")
-                inputs.dir(pluginTestRepository.url)
-                inputs.file(pluginTestInitScript.map {it.outputs.files.singleFile })
-                systemProperty("pluginTestInitScript", pluginTestInitScript.get().outputs.files.singleFile.absolutePath)
+    suites {
+        "test"(JvmTestSuite::class) {
+            useJUnitJupiter(libs.versions.junit.jupiter)
+            targets.configureEach {
+                testTask {
+                    dependsOn("publishPluginMavenPublicationToPluginTestRepository")
+                    inputs.dir(pluginTestRepository.url)
+                    inputs.file(pluginTestInitScript.map { it.outputs.files.singleFile })
+                    systemProperty(
+                        "pluginTestInitScript",
+                        pluginTestInitScript.get().outputs.files.singleFile.absolutePath,
+                    )
+                }
             }
         }
     }
