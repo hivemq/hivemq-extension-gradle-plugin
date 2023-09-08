@@ -24,6 +24,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.plugins.JvmTestSuitePlugin
+import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
@@ -33,6 +35,8 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
+import org.gradle.testing.base.TestingExtension
+import org.gradle.util.GradleVersion
 
 /**
  * @author Lukas Brand, Silvio Giebl
@@ -56,8 +60,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         private const val RUN_HIVEMQ_WITH_EXTENSION_TASK_NAME: String = "runHivemqWithExtension"
         private const val HIVEMQ_HOME_FOLDER_NAME: String = "hivemq-home"
 
-        private const val INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest"
-        private const val INTEGRATION_TEST_TASK_NAME = "integrationTest"
+        private const val INTEGRATION_TEST_SUITE_NAME = "integrationTest"
         const val PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME = "prepareHivemqExtensionTest"
         private const val HIVEMQ_EXTENSION_TEST_FOLDER_NAME = "hivemq-extension-test"
     }
@@ -229,6 +232,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("UnstableApiUsage")
     fun setupIntegrationTesting(project: Project, zipProvider: Provider<RegularFile>) {
         val prepareTask = project.tasks.register<PrepareHivemqExtensionTest>(PREPARE_HIVEMQ_EXTENSION_TEST_TASK_NAME) {
             group = TASK_GROUP_NAME
@@ -237,15 +241,28 @@ class HivemqExtensionPlugin : Plugin<Project> {
             into(project.layout.buildDirectory.dir(HIVEMQ_EXTENSION_TEST_FOLDER_NAME))
         }
 
-        val sourceSets = project.extensions.getByType<SourceSetContainer>()
-        val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SOURCE_SET_NAME)
-        val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_TASK_NAME) {
-            group = JavaBasePlugin.VERIFICATION_GROUP
-            description = "Runs integration tests."
-            testClassesDirs = integrationTestSourceSet.output.classesDirs
-            classpath = integrationTestSourceSet.runtimeClasspath + prepareTask.get().outputs.files
-            shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
+        if (GradleVersion.current() >= GradleVersion.version("7.3")) {
+            val testSuites = project.extensions.getByType<TestingExtension>().suites
+            val integrationTestSuite = testSuites.register<JvmTestSuite>(INTEGRATION_TEST_SUITE_NAME) {
+                targets.configureEach {
+                    testTask {
+                        classpath += prepareTask.get().outputs.files
+                        shouldRunAfter(testSuites.named(JvmTestSuitePlugin.DEFAULT_TEST_SUITE_NAME))
+                    }
+                }
+            }
+            project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestSuite) }
+        } else {
+            val sourceSets = project.extensions.getByType<SourceSetContainer>()
+            val integrationTestSourceSet = sourceSets.create(INTEGRATION_TEST_SUITE_NAME)
+            val integrationTestTask = project.tasks.register<Test>(INTEGRATION_TEST_SUITE_NAME) {
+                group = JavaBasePlugin.VERIFICATION_GROUP
+                description = "Runs integration tests."
+                testClassesDirs = integrationTestSourceSet.output.classesDirs
+                classpath = integrationTestSourceSet.runtimeClasspath + prepareTask.get().outputs.files
+                shouldRunAfter(project.tasks.named(JavaPlugin.TEST_TASK_NAME))
+            }
+            project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
         }
-        project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { dependsOn(integrationTestTask) }
     }
 }
