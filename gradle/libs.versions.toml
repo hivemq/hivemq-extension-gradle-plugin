@@ -6,7 +6,7 @@ junit-jupiter = "5.10.0"
 shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
 
 [plugins]
-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.0" }
+pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 metadata = { id = "io.github.sgtsilvio.gradle.metadata", version = "0.5.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
