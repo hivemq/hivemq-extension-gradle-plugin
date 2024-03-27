@@ -11,22 +11,22 @@ group = "com.hivemq"
 description = "A Gradle plugin to ease the development of HiveMQ extensions"
 
 metadata {
-    readableName.set("HiveMQ Extension Gradle Plugin")
+    readableName = "HiveMQ Extension Gradle Plugin"
     organization {
-        name.set("HiveMQ and the HiveMQ Community")
-        url.set("https://www.hivemq.com/")
+        name = "HiveMQ and the HiveMQ Community"
+        url = "https://www.hivemq.com/"
     }
     license {
         apache2()
     }
     developers {
-        register("ltb") {
-            fullName.set("Lukas Brand")
-            email.set("lukas.brand@hivemq.com")
+        register("LukasBrand") {
+            fullName = "Lukas Brand"
+            email = "lukas.brand@hivemq.com"
         }
         register("SgtSilvio") {
-            fullName.set("Silvio Giebl")
-            email.set("silvio.giebl@hivemq.com")
+            fullName = "Silvio Giebl"
+            email = "silvio.giebl@hivemq.com"
         }
     }
     github {
@@ -36,7 +36,7 @@ metadata {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion = JavaLanguageVersion.of(8)
     }
 }
 
@@ -49,15 +49,15 @@ dependencies {
 }
 
 gradlePlugin {
-    website.set(metadata.url)
-    vcsUrl.set(metadata.scm.get().url)
+    website = metadata.url
+    vcsUrl = metadata.scm.get().url
     plugins {
         create("extension") {
             id = "$group.$name"
             implementationClass = "$group.$name.gradle.HivemqExtensionPlugin"
             displayName = metadata.readableName.get()
             description = project.description
-            tags.set(listOf("hivemq", "extension"))
+            tags = listOf("hivemq", "extension")
         }
     }
 }
