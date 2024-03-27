@@ -1,6 +1,7 @@
 # HiveMQ Extension Gradle Plugin
 
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.hivemq.extension?color=brightgreen&style=for-the-badge)](https://plugins.gradle.org/plugin/com.hivemq.extension)
+[![GitHub](https://img.shields.io/github/license/hivemq/hivemq-extension-gradle-plugin?color=brightgreen&style=for-the-badge)](LICENSE)
 
 This Gradle plugin eases the development of HiveMQ extensions.
 
