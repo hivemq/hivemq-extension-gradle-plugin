@@ -8,10 +8,10 @@ plugins {
 }
 
 group = "com.hivemq"
-description = "A Gradle plugin to ease the development of HiveMQ extensions"
 
 metadata {
     readableName = "HiveMQ Extension Gradle Plugin"
+    description = "A Gradle plugin to ease the development of HiveMQ extensions"
     organization {
         name = "HiveMQ and the HiveMQ Community"
         url = "https://www.hivemq.com/"
