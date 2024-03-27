@@ -7,65 +7,43 @@ This Gradle plugin eases the development of HiveMQ extensions.
 
 ## Example with Groovy DSL
 
-Content of the `settings.gradle` file:
-```groovy
-pluginManagement {
-    plugins {
-        id 'com.hivemq.extension' version '3.0.0'
-    }
-}
-
-rootProject.name = 'example-extension'
-```
-
 Contents of the `build.gradle` file:
 ```groovy
 plugins {
-    id 'com.hivemq.extension'
+    id 'com.hivemq.extension' version '3.1.0'
 }
 
-group 'org.example'
-version '1.0.0'
+group = 'org.example'
+version = '1.0.0'
 
 hivemqExtension {
-    name.set('Example Extension')
-    author.set('Example Org')
-    priority.set(0)
-    startPriority.set(1000)
-    mainClass.set('org.example.ExtensionMain')
-    sdkVersion.set('4.6.2')
+    name = 'Example Extension'
+    author = 'Example Org'
+    priority = 0
+    startPriority = 1000
+    mainClass = 'org.example.ExtensionMain'
+    sdkVersion = '4.6.2'
 }
 ```
 
 ## Example with Kotlin DSL
 
-Content of the `settings.gradle.kts` file:
-```kotlin
-rootProject.name = "example-extension"
-
-pluginManagement {
-    plugins {
-        id("com.hivemq.extension") version "3.0.0"
-    }
-}
-```
-
 Contents of the `build.gradle.kts` file:
 ```kotlin
 plugins {
-    id("com.hivemq.extension")
+    id("com.hivemq.extension") version "3.1.0"
 }
 
 group = "org.example"
 version = "1.0.0"
 
 hivemqExtension {
-    name.set("Example Extension")
-    author.set("Example Org")
-    priority.set(0)
-    startPriority.set(1000)
-    mainClass.set("org.example.ExtensionMain")
-    sdkVersion.set("4.6.2")
+    name = "Example Extension"
+    author = "Example Org"
+    priority = 0
+    startPriority = 1000
+    mainClass = "org.example.ExtensionMain"
+    sdkVersion = "4.6.2"
 }
 ```
 
