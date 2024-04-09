@@ -179,4 +179,4 @@ This plugin adds an `integrationTest` task which executes tests from the `integr
 - Integration test dependencies are defined via the `integrationTestImplementation`, `integrationTestRuntimeOnly`, etc. configurations.
 
 The `integrationTest` task builds the extension first and unzips it to the `build/hivemq-extension-test` directory.
-The tests can then load the built extension into a [HiveMQ Test Container](https://github.com/hivemq/hivemq-testcontainer) as a classpath resource.
+The tests can then load the built extension into a [HiveMQ Test Container](https://java.testcontainers.org/modules/hivemq/) as a classpath resource.
