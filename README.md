@@ -5,30 +5,9 @@
 
 This Gradle plugin eases the development of HiveMQ extensions.
 
-## Example with Groovy DSL
+## Example
 
-Contents of the `build.gradle` file:
-```groovy
-plugins {
-    id 'com.hivemq.extension' version '3.1.0'
-}
-
-group = 'org.example'
-version = '1.0.0'
-
-hivemqExtension {
-    name = 'Example Extension'
-    author = 'Example Org'
-    priority = 0
-    startPriority = 1000
-    mainClass = 'org.example.ExtensionMain'
-    sdkVersion = '4.6.2'
-}
-```
-
-## Example with Kotlin DSL
-
-Contents of the `build.gradle.kts` file:
+Contents of the `build.gradle(.kts)` file:
 ```kotlin
 plugins {
     id("com.hivemq.extension") version "3.1.0"
