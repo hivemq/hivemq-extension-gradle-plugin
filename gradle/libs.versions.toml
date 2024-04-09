@@ -1,6 +1,6 @@
 [versions]
 shadow = "8.1.1"
-junit-jupiter = "5.10.0"
+junit-jupiter = "5.10.2"
 
 [libraries]
 shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
