@@ -49,14 +49,10 @@ dependencies {
 }
 
 gradlePlugin {
-    website = metadata.url
-    vcsUrl = metadata.scm.get().url
     plugins {
         create("extension") {
             id = "$group.$name"
             implementationClass = "$group.$name.gradle.HivemqExtensionPlugin"
-            displayName = metadata.readableName.get()
-            description = project.description
             tags = listOf("hivemq", "extension")
         }
     }
