@@ -15,18 +15,20 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.property
+import javax.inject.Inject
 
 /**
  * Task that prepares a HiveMQ home directory with a HiveMQ extension for debugging.
  *
  * @author Silvio Giebl
  */
-abstract class PrepareHivemqHome : Sync() {
+abstract class PrepareHivemqHome @Inject constructor(archiveOperations: ArchiveOperations) : Sync() {
 
     companion object {
         const val EXTENSIONS_FOLDER_NAME: String = "extensions"
@@ -60,7 +62,7 @@ abstract class PrepareHivemqHome : Sync() {
     val hivemqExtensionZip = project.objects.fileProperty()
 
     @get:Internal
-    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {
+    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { archiveOperations.zipTree(it) }) {
         into(EXTENSIONS_FOLDER_NAME)
     }
 

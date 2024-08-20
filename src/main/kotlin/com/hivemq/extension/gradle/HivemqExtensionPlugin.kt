@@ -90,7 +90,10 @@ class HivemqExtensionPlugin : Plugin<Project> {
             HivemqExtensionExtensionImpl::class,
             { project.copySpec() },
         ).apply {
-            mainClass.convention(project.memoizingProvider { findMainClass(project) })
+            mainClass.convention(project.providers.of(HivemqExtensionMainClassSource::class) {
+                val mainSourceSet = project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME]
+                parameters.sources.from(mainSourceSet.allSource.sourceDirectories)
+            })
         }
     }
 
@@ -163,20 +166,6 @@ class HivemqExtensionPlugin : Plugin<Project> {
             mainClass.set(extension.mainClass)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }
-    }
-
-    private fun findMainClass(project: Project): String? {
-        val regex = Regex("[ ,:]ExtensionMain[ ,{]")
-        var mainClass: String? = null
-        project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].allSource.visit {
-            if (!isDirectory && (file.name.endsWith(".java") || file.name.endsWith(".kt")) &&
-                file.readText().contains(regex)
-            ) {
-                mainClass = relativePath.pathString.substringBeforeLast('.').replace('/', '.')
-                stopVisiting()
-            }
-        }
-        return mainClass
     }
 
     fun registerXmlTask(project: Project, extension: HivemqExtensionExtension): TaskProvider<HivemqExtensionXml> {
