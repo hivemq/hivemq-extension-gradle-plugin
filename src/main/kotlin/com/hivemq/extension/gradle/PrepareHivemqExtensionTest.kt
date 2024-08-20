@@ -15,16 +15,18 @@
  */
 package com.hivemq.extension.gradle
 
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
+import javax.inject.Inject
 
 /**
  * Task that prepares a HiveMQ extension for integration testing.
  *
  * @author Silvio Giebl
  */
-abstract class PrepareHivemqExtensionTest : Sync() {
+abstract class PrepareHivemqExtensionTest @Inject constructor(archiveOperations: ArchiveOperations) : Sync() {
 
     /**
      * HiveMQ extension zip distribution used for integration testing.
@@ -34,7 +36,7 @@ abstract class PrepareHivemqExtensionTest : Sync() {
     val hivemqExtensionZip = project.objects.fileProperty()
 
     @get:Internal
-    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { project.zipTree(it) }) {}
+    val hivemqExtensionZipCopySpec = mainSpec.from(hivemqExtensionZip.map { archiveOperations.zipTree(it) }) {}
 
     init {
         duplicatesStrategy = DuplicatesStrategy.WARN
