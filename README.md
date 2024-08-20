@@ -10,7 +10,7 @@ This Gradle plugin eases the development of HiveMQ extensions.
 Contents of the `build.gradle(.kts)` file:
 ```kotlin
 plugins {
-    id("com.hivemq.extension") version "3.1.0"
+    id("com.hivemq.extension") version "3.2.0"
 }
 
 group = "org.example"
