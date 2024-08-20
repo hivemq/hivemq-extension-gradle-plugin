@@ -22,11 +22,6 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 fun String.firstUppercase() = replaceFirstChar(Char::uppercaseChar)
 
-fun <T> Project.memoizingProvider(initializer: () -> T): Provider<T> {
-    val lazy = lazy(initializer)
-    return provider { lazy.value }
-}
-
-internal val Project.versionProvider get() = memoizingProvider { version.toString() }
+val Project.versionProvider get() = provider { version.toString() }
 
 val Provider<out AbstractArchiveTask>.archiveFile: Provider<RegularFile> get() = flatMap { it.archiveFile }
