@@ -76,11 +76,27 @@ internal class MinRequiredGradleVersionTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionXml")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionZip")?.outcome)
 
-        val buildDir = projectDir.resolve("build/hivemq-extension")
-        assertTrue(buildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.jar").exists())
-        assertTrue(buildDir.resolve("hivemq-extension.xml").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.zip").exists())
+        val extensionBuildDir = projectDir.resolve("build/hivemq-extension")
+        assertEquals(
+            "test.TestExtensionMain",
+            extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.jar").exists())
+        assertEquals(
+            """
+            <?xml version="1.0" encoding="UTF-8" ?>
+            <hivemq-extension>
+                <id>test-extension</id>
+                <version>1.0.0</version>
+                <name>Test Extension</name>
+                <author>HiveMQ</author>
+                <priority>0</priority>
+                <start-priority>1000</start-priority>
+            </hivemq-extension>
+            """.trimIndent(),
+            extensionBuildDir.resolve("hivemq-extension.xml").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.zip").exists())
     }
 
     @Test
@@ -139,11 +155,27 @@ internal class MinRequiredGradleVersionTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionXml")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionZip")?.outcome)
 
-        val buildDir = projectDir.resolve("build/hivemq-extension")
-        assertTrue(buildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.jar").exists())
-        assertTrue(buildDir.resolve("hivemq-extension.xml").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.zip").exists())
+        val extensionBuildDir = projectDir.resolve("build/hivemq-extension")
+        assertEquals(
+            "test.TestExtensionMain",
+            extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.jar").exists())
+        assertEquals(
+            """
+            <?xml version="1.0" encoding="UTF-8" ?>
+            <hivemq-extension>
+                <id>test-extension</id>
+                <version>1.0.0</version>
+                <name>Test Extension</name>
+                <author>HiveMQ</author>
+                <priority>0</priority>
+                <start-priority>1000</start-priority>
+            </hivemq-extension>
+            """.trimIndent(),
+            extensionBuildDir.resolve("hivemq-extension.xml").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.zip").exists())
     }
 
     @Test
@@ -202,10 +234,26 @@ internal class MinRequiredGradleVersionTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionXml")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionZip")?.outcome)
 
-        val buildDir = projectDir.resolve("build/hivemq-extension")
-        assertTrue(buildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.jar").exists())
-        assertTrue(buildDir.resolve("hivemq-extension.xml").exists())
-        assertTrue(buildDir.resolve("test-extension-1.0.0.zip").exists())
+        val extensionBuildDir = projectDir.resolve("build/hivemq-extension")
+        assertEquals(
+            "test.TestExtensionMain",
+            extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.jar").exists())
+        assertEquals(
+            """
+            <?xml version="1.0" encoding="UTF-8" ?>
+            <hivemq-extension>
+                <id>test-extension</id>
+                <version>1.0.0</version>
+                <name>Test Extension</name>
+                <author>HiveMQ</author>
+                <priority>0</priority>
+                <start-priority>1000</start-priority>
+            </hivemq-extension>
+            """.trimIndent(),
+            extensionBuildDir.resolve("hivemq-extension.xml").readText(),
+        )
+        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.zip").exists())
     }
 }
