@@ -34,7 +34,7 @@ internal abstract class HivemqExtensionMainClassSource :
         var mainClass: String? = null
         parameters.sources.asFileTree.visit {
             if (!isDirectory && (name.endsWith(".java") || name.endsWith(".kt")) && file.readText().contains(regex)) {
-                mainClass = relativePath.pathString.substringBeforeLast('.').replace('/', '.')
+                mainClass = path.substringBeforeLast('.').replace('/', '.')
                 stopVisiting()
             }
         }
