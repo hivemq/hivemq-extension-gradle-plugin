@@ -38,7 +38,6 @@ abstract class RunHivemq : JavaExec() {
         systemProperty("hivemq.home", ToStringProvider(hivemqHomeDirectory.map { it.asFile.absolutePath }))
         jvmArgs(
             "-Djava.net.preferIPv4Stack=true",
-            "-noverify",
             "--add-opens", "java.base/java.lang=ALL-UNNAMED",
             "--add-opens", "java.base/java.nio=ALL-UNNAMED",
             "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
