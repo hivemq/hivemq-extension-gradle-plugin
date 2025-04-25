@@ -79,7 +79,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
     fun configureJava(project: Project) {
         project.plugins.apply(JavaPlugin::class)
         project.extensions.configure<JavaPluginExtension> {
-            toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+            toolchain.languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 
