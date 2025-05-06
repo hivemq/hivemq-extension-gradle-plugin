@@ -176,6 +176,7 @@ class HivemqExtensionPlugin : Plugin<Project> {
             author.set(extension.author)
             priority.set(extension.priority)
             startPriority.set(extension.startPriority)
+            startMandatory.set(extension.startMandatory)
             destinationDirectory.set(project.layout.buildDirectory.dir(BUILD_FOLDER_NAME))
         }.also {
             extension.resources.from(it)
