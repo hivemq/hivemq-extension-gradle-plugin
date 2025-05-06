@@ -94,6 +94,7 @@ internal class ConfigurationCacheTest {
                 <priority>0</priority>
                 <start-priority>1000</start-priority>
             </hivemq-extension>
+            
             """.trimIndent(),
             extensionBuildDir.resolve("hivemq-extension.xml").readText(),
         )
@@ -128,6 +129,7 @@ internal class ConfigurationCacheTest {
                 <priority>0</priority>
                 <start-priority>1000</start-priority>
             </hivemq-extension>
+            
             """.trimIndent(),
             extensionBuildDir.resolve("hivemq-extension.xml").readText(),
         )

@@ -47,6 +47,11 @@ interface HivemqExtensionExtension {
     val startPriority: Property<Int>
 
     /**
+     * Mandatory start of the HiveMQ extension, default: not set
+     */
+    val startMandatory: Property<Boolean>
+
+    /**
      * Main class of the HiveMQ extension, will be determined automatically if not set
      */
     val mainClass: Property<String>

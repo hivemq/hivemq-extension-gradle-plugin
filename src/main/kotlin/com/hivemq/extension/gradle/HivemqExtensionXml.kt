@@ -21,6 +21,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
@@ -77,6 +78,13 @@ abstract class HivemqExtensionXml : DefaultTask() {
     val startPriority = project.objects.property<Int>()
 
     /**
+     * Mandatory start of the HiveMQ extension.
+     */
+    @get:Input
+    @get:Optional
+    val startMandatory = project.objects.property<Boolean>()
+
+    /**
      * Configurable destination directory of the [xmlFile].
      */
     @get:Internal
@@ -99,18 +107,20 @@ abstract class HivemqExtensionXml : DefaultTask() {
     protected fun run() {
         val xmlFile = xmlFile.get().asFile
         xmlFile.parentFile.mkdirs()
-        xmlFile.writeText(
-            """
-            <?xml version="1.0" encoding="UTF-8" ?>
-            <hivemq-extension>
-                <id>${id.get()}</id>
-                <version>${version.get()}</version>
-                <name>${name.get()}</name>
-                <author>${author.get()}</author>
-                <priority>${priority.get()}</priority>
-                <start-priority>${startPriority.get()}</start-priority>
-            </hivemq-extension>
-            """.trimIndent()
-        )
+
+        xmlFile.writeText(buildString {
+            appendLine("""<?xml version="1.0" encoding="UTF-8" ?>""")
+            appendLine("<hivemq-extension>")
+            appendLine("    <id>${id.get()}</id>")
+            appendLine("    <version>${version.get()}</version>")
+            appendLine("    <name>${name.get()}</name>")
+            appendLine("    <author>${author.get()}</author>")
+            appendLine("    <priority>${priority.get()}</priority>")
+            appendLine("    <start-priority>${startPriority.get()}</start-priority>")
+            if (startMandatory.isPresent) {
+                appendLine("    <start-mandatory>${startMandatory.get()}</start-mandatory>")
+            }
+            appendLine("</hivemq-extension>")
+        })
     }
 }
