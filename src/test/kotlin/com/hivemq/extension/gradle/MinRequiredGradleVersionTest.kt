@@ -226,7 +226,7 @@ internal class MinRequiredGradleVersionTest {
         val result = GradleRunner.create()
             .withGradleVersion("6.9")
             .withProjectDir(projectDir)
-            .withArguments("hivemqExtensionZip", "--init-script", System.getProperty("pluginTestInitScript"), "--info", "--stacktrace")
+            .withArguments("hivemqExtensionZip", "--init-script", System.getProperty("pluginTestInitScript"))
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionServiceDescriptor")?.outcome)
