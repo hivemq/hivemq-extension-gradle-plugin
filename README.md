@@ -53,7 +53,7 @@ hivemqExtension {
 
 ## Requirements
 
-- Gradle 6.7 or higher is required (Gradle 8.x is recommended, special steps are required for Gradle 7.x and 6.x (see below) because of the compatibility requirements of the [Gradle Shadow plugin](https://github.com/johnrengelman/shadow))
+- Gradle 6.9 or higher is required (Gradle 8.x is recommended, special steps are required for Gradle 7.x and 6.x (see below) because of the compatibility requirements of the [Gradle Shadow plugin](https://github.com/johnrengelman/shadow))
 - JDK 11 or higher is required
 - Do not create descriptor files by yourself (`hivemq-extension.xml` or `com.hivemq.extension.sdk.api.ExtensionMain`).
   They are automatically generated.
