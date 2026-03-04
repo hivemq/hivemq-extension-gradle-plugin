@@ -127,6 +127,9 @@ testing {
     suites {
         "test"(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.jupiter)
+            dependencies {
+                implementation(libs.assertj)
+            }
             targets.configureEach {
                 testTask {
                     dependsOn("publishPluginMavenPublicationToPluginTestRepository")

@@ -15,10 +15,9 @@
  */
 package com.hivemq.extension.gradle
 
+import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -71,19 +70,17 @@ internal class ConfigurationCacheTest {
             .withArguments("hivemqExtensionZip", "--configuration-cache", "--init-script", System.getProperty("pluginTestInitScript"))
             .build()
 
-        assertTrue(result.output.contains("Configuration cache entry stored"))
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionServiceDescriptor")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionJar")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionXml")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionZip")?.outcome)
+        assertThat(result.output).contains("Configuration cache entry stored")
+        assertThat(result.task(":hivemqExtensionServiceDescriptor")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result.task(":hivemqExtensionJar")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result.task(":hivemqExtensionXml")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result.task(":hivemqExtensionZip")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
 
         val extensionBuildDir = buildDir.resolve("hivemq-extension")
-        assertEquals(
-            "test.TestExtensionMain",
-            extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").readText(),
-        )
-        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.jar").exists())
-        assertEquals(
+        assertThat(extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain"))
+            .hasContent("test.TestExtensionMain")
+        assertThat(extensionBuildDir.resolve("test-extension-1.0.0.jar")).exists()
+        assertThat(extensionBuildDir.resolve("hivemq-extension.xml")).hasContent(
             """
             <?xml version="1.0" encoding="UTF-8" ?>
             <hivemq-extension>
@@ -94,11 +91,10 @@ internal class ConfigurationCacheTest {
                 <priority>0</priority>
                 <start-priority>1000</start-priority>
             </hivemq-extension>
-            
+
             """.trimIndent(),
-            extensionBuildDir.resolve("hivemq-extension.xml").readText(),
         )
-        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.zip").exists())
+        assertThat(extensionBuildDir.resolve("test-extension-1.0.0.zip")).exists()
 
         buildDir.deleteRecursively()
 
@@ -107,18 +103,16 @@ internal class ConfigurationCacheTest {
             .withArguments("hivemqExtensionZip", "--configuration-cache", "--init-script", System.getProperty("pluginTestInitScript"))
             .build()
 
-        assertTrue(result2.output.contains("Configuration cache entry reused"))
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionServiceDescriptor")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionJar")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionXml")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":hivemqExtensionZip")?.outcome)
+        assertThat(result2.output).contains("Configuration cache entry reused")
+        assertThat(result2.task(":hivemqExtensionServiceDescriptor")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result2.task(":hivemqExtensionJar")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result2.task(":hivemqExtensionXml")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result2.task(":hivemqExtensionZip")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
 
-        assertEquals(
-            "test.TestExtensionMain",
-            extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain").readText(),
-        )
-        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.jar").exists())
-        assertEquals(
+        assertThat(extensionBuildDir.resolve("com.hivemq.extension.sdk.api.ExtensionMain"))
+            .hasContent("test.TestExtensionMain")
+        assertThat(extensionBuildDir.resolve("test-extension-1.0.0.jar")).exists()
+        assertThat(extensionBuildDir.resolve("hivemq-extension.xml")).hasContent(
             """
             <?xml version="1.0" encoding="UTF-8" ?>
             <hivemq-extension>
@@ -129,10 +123,9 @@ internal class ConfigurationCacheTest {
                 <priority>0</priority>
                 <start-priority>1000</start-priority>
             </hivemq-extension>
-            
+
             """.trimIndent(),
-            extensionBuildDir.resolve("hivemq-extension.xml").readText(),
         )
-        assertTrue(extensionBuildDir.resolve("test-extension-1.0.0.zip").exists())
+        assertThat(extensionBuildDir.resolve("test-extension-1.0.0.zip")).exists()
     }
 }
