@@ -1,6 +1,6 @@
 [versions]
 shadow = "8.3.10"
-junit-jupiter = "5.11.0"
+junit-jupiter = "6.0.3"
 
 [libraries]
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
