@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.pluginPublish)
     alias(libs.plugins.defaults)
     alias(libs.plugins.metadata)
-    alias(libs.plugins.license)
+    alias(libs.plugins.spotless)
 }
 
 group = "com.hivemq"
@@ -140,7 +140,8 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf("only pluginMaven publication is published to pluginTest repository") { predicate.get() }
 }
 
-license {
-    header = rootDir.resolve("HEADER")
-    mapping("kt", "SLASHSTAR_STYLE")
+spotless {
+    kotlin {
+        licenseHeaderFile(rootDir.resolve("HEADER"))
+    }
 }
