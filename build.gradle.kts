@@ -36,8 +36,24 @@ metadata {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+tasks.compileJava {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.compileKotlin {
+    kotlinJavaToolchain.toolchain.use(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    })
 }
 
 repositories {
