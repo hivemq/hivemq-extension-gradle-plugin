@@ -1,9 +1,9 @@
 [versions]
-shadow = "8.1.1"
+shadow = "8.3.10"
 junit-jupiter = "5.11.0"
 
 [libraries]
-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
+shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [plugins]
 pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
