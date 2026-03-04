@@ -53,41 +53,11 @@ hivemqExtension {
 
 ## Requirements
 
-- Gradle 6.9 or higher is required (Gradle 8.x is recommended, special steps are required for Gradle 7.x and 6.x (see below) because of the compatibility requirements of the [Gradle Shadow plugin](https://github.com/johnrengelman/shadow))
+- Gradle 8.3 or higher is required (because of the compatibility requirements of the [Gradle Shadow plugin](https://github.com/GradleUp/shadow))
 - JDK 11 or higher is required
 - Do not create descriptor files by yourself (`hivemq-extension.xml` or `com.hivemq.extension.sdk.api.ExtensionMain`).
   They are automatically generated.
 - Do not add the `hivemq-extension-sdk` dependency yourself. It is added automatically with the right scopes.
-
-### Running on Gradle 7.x
-
-If you run on Gradle 7.x, please add the following to your `build.gradle(.kts)` in addition to applying this plugin:
-
-```kotlin
-buildscript {
-    dependencies {
-        classpath("gradle.plugin.com.github.johnrengelman:shadow:7.1.2")
-    }
-    configurations.classpath {
-        exclude("com.github.johnrengelman", "shadow")
-    }
-}
-```
-
-### Running on Gradle 6.x
-
-If you run on Gradle 6.x, please add the following to your `build.gradle(.kts)` in addition to applying this plugin:
-
-```kotlin
-buildscript {
-    dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
-    }
-    configurations.classpath {
-        exclude("com.github.johnrengelman", "shadow")
-    }
-}
-```
 
 ## Build
 
