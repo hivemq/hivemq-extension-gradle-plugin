@@ -9,4 +9,4 @@ shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 metadata = { id = "io.github.sgtsilvio.gradle.metadata", version = "0.6.0" }
-license = { id = "com.github.hierynomus.license", version = "0.16.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.3.0" }
