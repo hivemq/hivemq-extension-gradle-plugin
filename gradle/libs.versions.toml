@@ -1,8 +1,10 @@
 [versions]
+assertj = "3.27.7"
 shadow = "8.3.10"
 junit-jupiter = "6.0.3"
 
 [libraries]
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [plugins]
