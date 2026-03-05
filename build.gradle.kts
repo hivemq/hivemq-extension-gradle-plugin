@@ -74,48 +74,6 @@ signing {
     useInMemoryPgpKeys(signingKey, signingPassword)
 }
 
-val pluginTestRepository = publishing.repositories.maven {
-    name = "pluginTest"
-    url = uri(layout.buildDirectory.dir("pluginTest/repository"))
-}
-
-val pluginTestInitScript by tasks.registering {
-    group = "Plugin development"
-    description = "Generates the init script for plugin functional tests."
-
-    val repositoryPath = file(pluginTestRepository.url).absolutePath
-    inputs.property("repositoryPath", repositoryPath)
-    val pluginIds = provider { gradlePlugin.plugins.map { it.id } }
-    inputs.property("pluginIds", pluginIds)
-    val coordinates =
-        provider { (publishing.publications["pluginMaven"] as MavenPublication).run { "$groupId:$artifactId:$version" } }
-    inputs.property("coordinates", coordinates)
-    val outputFile = project.layout.buildDirectory.file("pluginTest/init.gradle.kts")
-    outputs.file(outputFile)
-    doLast {
-        val pluginIdsString = pluginIds.get().joinToString("\", \"", "\"", "\"")
-        outputFile.get().asFile.writeText(
-            """
-            beforeSettings {
-                pluginManagement {
-                    repositories {
-                        maven { url = uri("$repositoryPath") }
-                        gradlePluginPortal()
-                    }
-                    resolutionStrategy {
-                        eachPlugin {
-                            if ((requested.id.id in listOf($pluginIdsString)) && (requested.version == null)) {
-                                useModule("${coordinates.get()}")
-                            }
-                        }
-                    }
-                }
-            }
-            """.trimIndent()
-        )
-    }
-}
-
 @Suppress("UnstableApiUsage")
 testing {
     suites {
@@ -124,33 +82,8 @@ testing {
             dependencies {
                 implementation(libs.assertj)
             }
-            targets.configureEach {
-                testTask {
-                    dependsOn("publishPluginMavenPublicationToPluginTestRepository")
-                    inputs.dir(pluginTestRepository.url)
-                    inputs.file(pluginTestInitScript.map { it.outputs.files.singleFile })
-                    systemProperty(
-                        "pluginTestInitScript",
-                        pluginTestInitScript.get().outputs.files.singleFile.absolutePath,
-                    )
-                }
-            }
         }
     }
-}
-
-afterEvaluate {
-    tasks.named<PublishToMavenRepository>("publishPluginMavenPublicationToPluginTestRepository") {
-        outputs.dir(repository.url)
-        doFirst {
-            delete(repository.url)
-        }
-    }
-}
-
-tasks.withType<PublishToMavenRepository>().configureEach {
-    val predicate = provider { (repository.name != "pluginTest") || (publication.name == "pluginMaven") }
-    onlyIf("only pluginMaven publication is published to pluginTest repository") { predicate.get() }
 }
 
 spotless {
