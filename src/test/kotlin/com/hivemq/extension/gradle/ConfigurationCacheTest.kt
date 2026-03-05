@@ -67,7 +67,8 @@ internal class ConfigurationCacheTest {
 
         val result = GradleRunner.create()
             .withProjectDir(projectDir)
-            .withArguments("hivemqExtensionZip", "--configuration-cache", "--init-script", System.getProperty("pluginTestInitScript"))
+            .withPluginClasspath()
+            .withArguments("hivemqExtensionZip", "--configuration-cache")
             .build()
 
         assertThat(result.output).contains("Configuration cache entry stored")
@@ -100,7 +101,8 @@ internal class ConfigurationCacheTest {
 
         val result2 = GradleRunner.create()
             .withProjectDir(projectDir)
-            .withArguments("hivemqExtensionZip", "--configuration-cache", "--init-script", System.getProperty("pluginTestInitScript"))
+            .withPluginClasspath()
+            .withArguments("hivemqExtensionZip", "--configuration-cache")
             .build()
 
         assertThat(result2.output).contains("Configuration cache entry reused")
