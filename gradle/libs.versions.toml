@@ -8,7 +8,7 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [plugins]
-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
-defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
+pluginPublish = { id = "com.gradle.plugin-publish", version = "2.1.0" }
+defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
 metadata = { id = "io.github.sgtsilvio.gradle.metadata", version = "0.6.0" }
 spotless = { id = "com.diffplug.spotless", version = "8.3.0" }
