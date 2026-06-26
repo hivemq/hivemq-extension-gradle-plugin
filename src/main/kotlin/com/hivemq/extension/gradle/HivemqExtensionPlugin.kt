@@ -145,11 +145,17 @@ class HivemqExtensionPlugin : Plugin<Project> {
             from(project.extensions.getByType<SourceSetContainer>()[SourceSet.MAIN_SOURCE_SET_NAME].output)
             configurations = listOf(project.configurations[JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME])
             val providedConfiguration = project.configurations[PROVIDED_CONFIGURATION_NAME]
-            for (component in providedConfiguration.incoming.resolutionResult.allComponents) {
-                val id = component.moduleVersion
-                if (id != null) {
-                    dependencyFilter.exclude(dependencyFilter.dependency("${id.group}:${id.name}"))
-                }
+            // Resolve the provided configuration lazily, at execution time. Resolving it during task configuration
+            // fails under Gradle 9+ when a project is configured without holding its exclusive lock (e.g. in a
+            // composite build): "Resolution of the configuration ':...:hivemqProvided' was attempted without an
+            // exclusive lock. This is unsafe and not allowed."
+            val providedModuleIds by lazy {
+                providedConfiguration.incoming.resolutionResult.allComponents
+                    .mapNotNull { it.moduleVersion }
+                    .mapTo(HashSet()) { "${it.group}:${it.name}" }
+            }
+            dependencyFilter.exclude { resolvedDependency ->
+                "${resolvedDependency.moduleGroup}:${resolvedDependency.moduleName}" in providedModuleIds
             }
             exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
             mergeServiceFiles()
