@@ -17,6 +17,7 @@ package com.hivemq.extension.gradle
 
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.property
@@ -26,6 +27,7 @@ import org.gradle.kotlin.dsl.property
  *
  * @author Silvio Giebl
  */
+@CacheableTask
 abstract class HivemqExtensionZip : Zip() {
 
     /**
@@ -56,5 +58,7 @@ abstract class HivemqExtensionZip : Zip() {
         mainSpec.from(jar) { rename { "${id.get()}-${version.get()}.jar" } }
         rootSpec.into(id)
         duplicatesStrategy = DuplicatesStrategy.WARN
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
     }
 }
